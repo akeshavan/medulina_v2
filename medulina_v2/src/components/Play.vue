@@ -42,10 +42,10 @@
         <p clas="my-4"> <strong> Close your loops! </strong> </p>
       </b-modal>
 
-      <div  class="container-fluid menuOpts" >
+      <b-collapse class="container-fluid menuOpts" id="collapse1">
           <div class="row flex-row flex-nowrap cardArea mx-auto">
 
-            <b-collapse id="collapse1" class="mt-2 ml-2 mb-2">
+            <div class="mt-2 ml-2 mb-2">
                 <b-card>
                   <p class="card-text">Brush Size</p>
                   <b-form-radio-group id="btnradios2"
@@ -56,8 +56,8 @@
                     :options="brushSizeOptions"
                     name="radioBtnOutline" />
                 </b-card>
-              </b-collapse>
-              <b-collapse id="collapse1" class="mt-2 ml-2 mb-2">
+              </div>
+              <div  class="mt-2 ml-2 mb-2">
                   <b-card>
                     <p class="card-text">Brush Color</p>
                     <b-form-radio-group id="btnradios2"
@@ -69,26 +69,26 @@
                     name="radioBtnOutline" />
 
                   </b-card>
-                </b-collapse>
-                <b-collapse id="collapse1" class="mt-2 ml-2 mb-2" @shown="testShown">
+                </div>
+                <div  class="mt-2 ml-2 mb-2" @shown="testShown">
                     <b-card>
                       <p class="card-text">Brightness</p>
                       <vue-slider ref="slider1" v-model="brightness" v-bind="brightnessOptions">
                       </vue-slider>
                       {{brightness}}
                     </b-card>
-                  </b-collapse>
-                <b-collapse id="collapse1" class="mt-2 ml-2 mb-2 ">
+                </div>
+                <div  class="mt-2 ml-2 mb-2 ">
                     <b-card>
                       <p class="card-text">Contrast</p>
                       <vue-slider ref="slider2" v-model="contrast" v-bind="brightnessOptions">
                       </vue-slider>
                       {{contrast}}
                     </b-card>
-                  </b-collapse>
+                </div>
 
           </div>
-      </div>
+      </b-collapse>
 
       <b-navbar  toggleable="md" type="dark" variant="info" class="navbar-fixed-bottom" id="bottonNav" style="position: absolute; bottom: 0; width: 100%;">
 
@@ -393,6 +393,7 @@ export default {
     },
 
     changeImg() {
+      this.$emit('change_status', null);
       const self = this;
       const url = this.image_url;
       this.overlay = true;
@@ -408,9 +409,9 @@ export default {
         self.user_agent = navigator.userAgent;
         self.startTime = new Date();
         console.log(data);
+        this.$emit('change_status', 'Submit');
+        this.showLegend = false;
       });
-      this.$emit('change_status', 'Submit');
-      this.showLegend = false;
     },
 
     submitImg() {
@@ -429,6 +430,7 @@ export default {
       if (this.mode === 'train') {
         imgbody.mode = 'try';
       }
+      this.$emit('change_status', null);
 
       axios({
         method: 'POST',

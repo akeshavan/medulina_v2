@@ -39,7 +39,15 @@
 
         <b-nav-form>
           <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
-          <b-button size="sm" class="my-2 my-sm-0" v-on:click="doAction">{{status}}</b-button>
+          <b-button size="sm" class="my-2 my-sm-0" v-on:click="doAction" :disabled="!status">
+            <span v-if="status">
+              {{status}}
+            </span>
+            <span v-else>
+              loading
+            </span>
+            <!-- TODO: spinner here -->
+          </b-button>
         </b-nav-form>
 
       </b-nav>
