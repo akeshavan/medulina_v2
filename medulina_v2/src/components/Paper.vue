@@ -489,7 +489,7 @@ export default {
       this.view.translate(this.panFactor.x, this.panFactor.y);
     },
 
-    add_roi(data, type, do_drag) {
+    add_roi(data, type, doDrag) {
       chai.assert.oneOf(type, ['fp', 'tp', 'fn']);
       this[type] = new paper.Raster({});
       this[type].setSize(this.base.size);
@@ -499,19 +499,28 @@ export default {
       this[type].initPixelLog();
 
       const colors = {
-        'fp': '#87BCDE',
-        'tp': this.draw.LUT[1],
-        'fn': '#FF595E',
-      }
+        fp: '#87BCDE',
+        tp: this.draw.LUT[1],
+        fn: '#FF595E',
+      };
       const LUT = {
         0: this.draw.LUT[0],
         1: colors[type],
-      }
+      };
       this[type].fillPixelLog(data, LUT);
       this[type].fitBounds(this.base.bounds);
-
-      if (do_drag){
-        // this[type].onMouseDrag =
+      const self = this;
+      if (doDrag) {
+        // TODO: this[type].onMouseDrag =
+        this[type].onMouseDrag = function onMouseDrag(e) {
+          if (e.event.buttons === 2) {
+            // right click and drag
+            self.doPan(e);
+          }
+        };
+        this[type].onMouseUp = function onMouseUp(e) {
+          self.reset_draw(e);
+        };
       }
       // fp.onMouseDrag = dragHandlerPan
     },

@@ -36,7 +36,8 @@
       </div>
 
       <!-- Modal Component for fill error -->
-      <b-modal id="fillErr" ref="fillErr" title="Fill Error" ok-only>
+      <b-modal id="fillErr" ref="fillErr" title="Fill Error" ok-only header-bg-variant="info"
+           header-text-variant="light">
         <p clas="my-4">You are filling too much. </p>
         <p clas="my-4"> <strong> Close your loops! </strong> </p>
       </b-modal>
@@ -251,9 +252,9 @@ import Vue from 'vue';
 import config from '../config';
 
 
-Vue.filter('formatNumber', function(value) {
-    return numeral(value).format('0.0[0]'); // displaying other groupings/separators is possible, look at the docs
-});
+Vue.filter('formatNumber', value =>
+    numeral(value).format('0.0[0]'), // displaying other groupings/separators is possible, look at the docs
+);
 
 
 export default {
@@ -357,7 +358,7 @@ export default {
   methods: {
     fillErrorStart() {
       // console.log("starting to revert...", this.$refs.fillErr.show())
-      // this.$refs.fillErr.modal()
+      this.$refs.fillErr.show();
     },
 
     testShown() {
@@ -372,7 +373,7 @@ export default {
     hide() {
       this.overlay = !this.overlay;
       this.$refs.paper.roi.visible = this.overlay;
-      if (this.$refs.paper.fp){
+      if (this.$refs.paper.fp) {
         this.$refs.paper.fp.visible = this.overlay;
         this.feedback.fp = this.overlay;
         this.$refs.paper.tp.visible = this.overlay;
@@ -394,6 +395,10 @@ export default {
     changeImg() {
       const self = this;
       const url = this.image_url;
+      this.overlay = true;
+      this.feedback.fp = true;
+      this.feedback.fn = true;
+      this.feedback.tp = true;
       axios.get(url, { params: { _: Math.random() } }).then((resp) => {
         chai.assert.lengthOf(resp.data._items, 1, 'the response from /image does not have exactly 1 item');
         const data = resp.data._items[0];
@@ -404,7 +409,7 @@ export default {
         self.startTime = new Date();
         console.log(data);
       });
-      this.$emit("change_status", "Submit");
+      this.$emit('change_status', 'Submit');
       this.showLegend = false;
     },
 
@@ -437,20 +442,21 @@ export default {
         data: JSON.stringify(imgbody),
       }).then((response) => {
         console.log('response is', response);
-        if (this.mode === 'train'){
+        if (this.mode === 'train') {
           const data = response.data;
-          console.log(data.fp)
+          console.log(data.fp);
+          this.overlay = true;
           this.$refs.paper.add_roi(data.fp, 'fp', 0);
           this.$refs.paper.add_roi(data.tp, 'tp', 0);
           this.$refs.paper.add_roi(data.fn, 'fn', 1);
           this.$refs.paper.roi.remove();
           this.score.dice = data.score;
           this.showLegend = true;
-          this.$emit("change_status", "Next")
+          this.$emit('change_status', 'Next');
         } else {
           // fireworks!
           this.changeImg();
-          this.$emit("change_status", "Submit");
+          this.$emit('change_status', 'Submit');
         }
       });
     },

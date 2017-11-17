@@ -128,7 +128,8 @@ export default {
       const url = this.image_url;
 
       /* axios.get(url, { params: { _: Math.random() } }).then((resp) => {
-        chai.assert.lengthOf(resp.data._items, 1, 'the response from /image does not have exactly 1 item');
+        chai.assert.lengthOf(resp.data._items, 1,
+        'the response from /image does not have exactly 1 item');
         const data = resp.data._items[0];
         self.paperSrc = `data:image/jpeg;base64,${data.pic}`;
       }).catch(() => {
