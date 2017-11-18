@@ -79,7 +79,6 @@ import Vue from 'vue';
 import VueAxios from 'vue-axios';
 import axios from 'axios';
 import VueResize from 'vue-resize';
-import numeral from 'numeral';
 import auth from './lib/auth'; // leave authentication stuff outside of Vue ?
 import config from './config';
 
@@ -101,7 +100,6 @@ Vue.use(VueScrollTo, {
   y: true,
 });
 Vue.use(VueAxios, axios);
-
 
 
 export default {
@@ -160,7 +158,7 @@ export default {
 
   methods: {
     doAction() {
-      if (this.status == "Submit"){
+      if (this.status === 'Submit') {
         this.$refs.route.submitImg();
       } else {
         this.$refs.route.changeImg();
@@ -236,7 +234,7 @@ export default {
   },
 
   created() {
-    this.getUserInfo()
+    this.getUserInfo();
   },
 
   mounted() {

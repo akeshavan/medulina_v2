@@ -8,6 +8,9 @@
       :brightness="brightness" :contrast="contrast"
       id="canvas-id"
       ></Paper>
+
+      <canvas class="fireworks" resize :hidden="!doFirework"></canvas>
+
       <div class="legend" style="" v-if="showLegend">
           <!--<h3 style="text-align: center">{{score.dice | | formatNumber}}</h3>-->
           <div class="roi">
@@ -237,6 +240,10 @@
     width: 120px;
   }
 
+  .fireworks {
+    position: absolute;
+    top: 0;
+  }
 
 </style>
 
@@ -250,6 +257,7 @@ import chai from 'chai';
 import numeral from 'numeral';
 import Vue from 'vue';
 import config from '../config';
+import firework from '../lib/firework';
 
 
 Vue.filter('formatNumber', value =>
@@ -321,6 +329,7 @@ export default {
         fn: true,
         tp: true,
       },
+      doFirework: false,
     };
   },
   components: { Paper, vueSlider },
@@ -414,6 +423,13 @@ export default {
       });
     },
 
+    playFirework() {
+      this.doFirework = true;
+      firework.playFirework(500).then(() => {
+        this.doFirework = false;
+      });
+    },
+
     submitImg() {
       const imgbody = {
         image_id: this.image_id,
@@ -457,6 +473,7 @@ export default {
           this.$emit('change_status', 'Next');
         } else {
           // fireworks!
+          this.playFirework();
           this.changeImg();
           this.$emit('change_status', 'Submit');
         }
