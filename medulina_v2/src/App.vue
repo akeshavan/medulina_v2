@@ -310,8 +310,7 @@ export default {
     text-align: center;
     color: #2c3e50;
     height: auto;
-    overflow-x: hidden;
-    overflow: scroll;
+    overflow: auto;
     /*margin-top: 60px;*/
   }
 

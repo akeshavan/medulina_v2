@@ -139,7 +139,7 @@
     text-align: center;
     position: absolute;
     bottom: 0px;
-    height: 200px;
+    height: 195px;
   }
 
   .cardArea {
