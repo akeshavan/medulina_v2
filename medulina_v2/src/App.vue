@@ -48,6 +48,28 @@
             </span>
             <!-- TODO: spinner here -->
           </b-button>
+
+
+        </b-nav-form>
+
+      </b-navbar-nav>
+
+      <!-- Right aligned nav items -->
+      <b-navbar-nav is-nav-bar class="ml-auto" v-show="$route.path.indexOf('/tutorial') == 0">
+
+        <b-nav-form>
+          <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
+          <b-button size="sm" class="my-2 my-sm-0" v-on:click="doAction" :disabled="!status" v-if="tutorialShow()">
+            <span v-if="status">
+              {{status}}
+            </span>
+            <span v-else>
+              loading
+            </span>
+            <!-- TODO: spinner here -->
+          </b-button>
+
+
         </b-nav-form>
 
       </b-navbar-nav>
@@ -98,25 +120,46 @@ export default {
       mode: 'draw',
       task: 'cheng_et_al_001',
       all_tasks: [
-        { name: 'Meningioma', task: 'cheng_et_al_001', level: 'easy', text: `
+        { name: 'Meningioma',
+          task: 'cheng_et_al_001',
+          level: 'easy',
+          text: `
         Menigiomas are tumors that grow from the brains covering. Help us teach computers to spot these tumors so we can automate detection and predict outcomes.
 
         Menigiomas stand out from the surroundings and are a great place to start.
 
         The data is provided by the brain tumor dataset, by Jun Cheng, 2017. figshare.
-        ` },
+        `,
+          tutorial_title: 'Finding Meningiomas',
+          desc: `Meningiomas are a type of brain tumor.
+          They look bright on an MRI scan, and can be anywhere in the brain.
+        `,
+        },
         { name: 'Stroke', task: 'atlas_lesions', level: 'medium', text: `
         Strokes occur when the brain is damaged by lack of blood flow or by bleeding in the brain. Help us teach computers how to find damage caused by strokes.
 
         The areas most damaged by a stroke are easy to spot, but finding the full extent of the damage can be tricky.
 
         The data is provided by the ATLAS dataset, by Liew et al. 2017
-        ` },
-        { name: 'Dentate Gyrus', task: 'db_cor_context03', level: 'hard', text: `
+        `,
+          tutorial_title: 'Finding Stroke Lesions',
+          desc: `Stroke lesion descripton.
+        They look dark on an MRI scan, and can be anywhere in the brain.
+      `,
+        },
+        { name: 'Dentate Gyrus',
+          task: 'db_cor_context03',
+          level: 'hard',
+          text: `
         The dentate gyrus is part of the hippocampus that helps form new memories. Help us spot its complex, curving structure so we can learn more about how it works.
 
         The dentate gyrus is a band of darker tissue within the hippocampus that can be quite challenging to spot.
-        ` },
+        `,
+          tutorial_title: 'Finding the Dentate Gyrus',
+          desc: `Dentate Gyrus descripton.
+
+    `,
+        },
       ],
       isAuthenticated: false,
       login: {
@@ -153,6 +196,16 @@ export default {
       }
 
       // console.log('new papersource', this.$refs.route.paperSrc)
+    },
+
+
+    tutorialShow() {
+      if (this.$refs.route) {
+        if (this.$refs.route.currentStep) {
+          return this.$refs.route.currentStep('submit');
+        }
+      }
+      return false;
     },
 
     changeStatus(status) {
@@ -257,6 +310,7 @@ export default {
     text-align: center;
     color: #2c3e50;
     height: auto;
+    overflow-x: hidden;
     overflow: scroll;
     /*margin-top: 60px;*/
   }

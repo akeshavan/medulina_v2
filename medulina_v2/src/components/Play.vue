@@ -100,7 +100,7 @@
         <b-nav>
           <b-nav-form is-nav-bar class="ml-auto">
             <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
-            <b-button size="sm" class="my-2 my-sm-0" type="submit" v-on:click="hide">Hide</b-button>
+            <b-button size="sm" class="my-2 my-sm-0" v-on:click="hide">Hide</b-button>
           </b-nav-form>
         </b-nav>
 
@@ -114,7 +114,7 @@
         <b-nav is-nav-bar class="ml-auto">
           <b-nav-form>
             <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
-            <b-button size="sm" class="my-2 my-sm-0" type="submit" v-on:click="undo">Undo</b-button>
+            <b-button size="sm" class="my-2 my-sm-0" v-on:click="undo">Undo</b-button>
           </b-nav-form>
         </b-nav>
 

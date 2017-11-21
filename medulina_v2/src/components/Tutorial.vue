@@ -1,158 +1,552 @@
 <template>
-  <div id="tutorial">
+  <div class="tutorial" ref="tutorial">
 
+    <!-- STEP 1-->
+    <transition name="fade" appear>
+      <div v-if="currentStep('step1') && !showNext" class="step1 pb-2">
+        <b-container>
+          <h3 class="pt-4 pb-3">{{taskInfo.tutorial_title}}</h3>
+          <p class="lead"> {{taskInfo.desc}}</p>
 
-
-        <div class="landing gray empty first" id="step1">
-          <div class="caption">
-            <h1>Find Meningiomas</h1>
-            <button class="btn btn-primary" @click="scroll">Start</button>
+          <div class="mt-2">
+            <b-button variant="info" v-if="!showNext" @click="showROI('paper')">
+              Show {{taskInfo.name}}
+            </b-button>
           </div>
-        </div>
+        </b-container>
+      </div>
+    </transition>
 
-        <div class="landing design blue" >
-          <div class="caption">
-            <h1 id="step2">What are meningiomas?</h1>
-            They are bad
+    <!-- NEXT -->
+      <div class="step1 next pt-2 pb-2" v-if="showNext">
+        <transition name="fade">
+          <b-button variant="success" v-if="showNext" @click="incrementStep">
+            Next
+          </b-button>
+        </transition>
+      </div>
+
+      <!-- STEP 2-->
+      <transition name="fade">
+        <div v-if="currentStep('step2')" class="next">
+          <b-alert show variant="light" class="mb-0">
+            <strong>
+              <h5> Step 1: Outline the {{taskInfo.name}} </h5>
+            </strong>
+
+              Click and Drag to outline
+          </b-alert>
+
+          <b-alert :show="currentStep('step2')" dismissible variant="warning" class="fixed-bottom">
+            <strong>To Zoom</strong>: Scroll or Pinch
+            <br>
+            <strong>To Pan</strong>: Right-Click & Drag or Two Finger Drag
+          </b-alert>
+        </div>
+      </transition>
+
+      <!-- STEP 3-->
+      <transition name="fade">
+        <div v-if="currentStep('step3')" class="next">
+          <b-alert show variant="light" class="mb-0">
+            <strong>
+              <h5> Step 2: Fill the {{taskInfo.name}} </h5>
+            </strong>
+
+              Double click (or tap) inside the shape to fill it
+          </b-alert>
+          <b-alert show dismissible variant="danger" class="mt-0 mb-0 fixed-bottom">
+            <strong>Warning</strong>: Make sure your shape is closed before filling
+          </b-alert>
+
+        </div>
+      </transition>
+
+      <!-- STEP 4 -->
+      <transition name="fade">
+        <div v-if="currentStep('submit')" class="next">
+          <b-alert show variant="light" class="mb-0">
+            <strong>
+              <h5> {{step.title}} </h5>
+            </strong>
+              {{step.description}}
+          </b-alert>
+        </div>
+      </transition>
+
+      <!-- STEP 5 -->
+      <transition name="fade">
+        <div v-if="currentStep('step5')" class="next">
+          <b-alert show variant="light" class="mb-0 fixed-bottom">
+            <strong>
+              <h5> {{step.title}} </h5>
+            </strong>
+              {{step.description}}
+          </b-alert>
+        </div>
+      </transition>
+
+      <!-- STEP 6 -->
+      <transition name="fade">
+        <div v-if="currentStep('step6')" class="next">
+          <b-alert show variant="light" class="mb-0">
+            <strong>
+              <h5> {{step.title}} </h5>
+            </strong>
+              {{step.description}}
+          </b-alert>
+        </div>
+      </transition>
+
+      <!-- STEP 7 -->
+      <transition name="fade">
+        <div v-if="currentStep('step7')" class="next ">
+          <b-alert show variant="light" class="">
+            <strong>
+              <h5> {{step.title}} </h5>
+            </strong>
+              {{step.description}}
+          </b-alert>
+        </div>
+      </transition>
+
+      <Paper  :paper-src="paperSrc" :fill-error-start="fillErrorStart"
+      :fill-error-end="fillErrorEnd"
+      :paint-size="brushSize"
+      :paint-val="brushColor" ref="paper"
+      :brightness="brightness" :contrast="contrast"
+      v-on:mouseup="doMouseUp"
+      v-on:dblclick="doDblClick"
+      id="canvas-id"
+      ></Paper>
+
+      <canvas class="fireworks" resize :hidden="!doFirework"></canvas>
+
+      <div class="legend" style="" v-if="showLegend">
+          <!--<h3 style="text-align: center">{{score.dice | | formatNumber}}</h3>-->
+          <div class="roi">
+              <div id="fn"
+              v-bind:class="{'missed': !feedback.fn, 'missed view': feedback.fn}"
+              v-on:click="toggle('fn')"></div>
+              <span style="line-height:50px;">Missed</span>
           </div>
-        </div>
 
-        <div class="landing design gray empty" >
-          <div class="caption">
-            <h1 id="step3">What do meningiomas look like? </h1>
-            bright blobs
+          <br>
+          <div class="roi">
+              <div id="fp"
+              v-bind:class="{'incorrect': !feedback.fp, 'incorrect view': feedback.fp}"
+              v-on:click="toggle('fp')"></div>
+              <span style="line-height:50px;">Incorrect</span>
           </div>
-        </div>
 
-        <div class="landing design blue empty" >
-          <div class="row caption ">
-            <div class="col-md-6">
-              <h1 id="step4">Step 1: Draw</h1>
-              Outline the meningioma by clicking and dragging
-            </div>
-            <div class="col-md-6">
-
-              <div class="paperImg">
-                <Paper
-                :paper-src="paperSrc"
-                :fill-error-start="fillErrorStart"
-                :fill-error-end="fillErrorEnd"
-                :paint-size="brushSize"
-                :paint-val="brushColor"
-                :brightness="brightness" :contrast="contrast"
-                v-on:mouseup="applyDrawing"
-                v-on:dblclick="applyDrawing"
-                ref="draw"
-                id="draw"
-                ></Paper>
-              </div>
-
-            </div>
+          <br>
+          <div class="roi">
+              <div id="tp"
+              v-bind:class="{'correct': !feedback.tp, 'correct view': feedback.tp}"
+              v-on:click="toggle('tp')"></div>
+              <span style="line-height:50px;">Correct</span>
           </div>
-        </div>
-
-        <div class="landing design gray" >
-          <div class="row caption ">
-
-            <div class="col-md-6">
-                <div class="paperImg mx-auto">
-                  <Paper
-                  :paper-src="paperSrc"
-                  :fill-error-start="fillErrorStart"
-                  :fill-error-end="fillErrorEnd"
-                  :paint-size="brushSize"
-                  :paint-val="brushColor"
-                  :brightness="brightness" :contrast="contrast"
-
-                  ref="fill"
-                  id="fill"
-                  ></Paper>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <h1 id="step4">Step 2: Fill</h1>
-                Fill the meningioma by double clicking
-              </div>
-
-
-          </div>
-        </div>
-
-
-      <!--<div class="row">
-
-          <h3>Click and Drag to draw</h3>
-
-          <Paper
-          :paper-src="paperSrc"
-          :fill-error-start="fillErrorStart"
-          :fill-error-end="fillErrorEnd"
-          :paint-size="brushSize"
-          :paint-val="brushColor"
-          :brightness="brightness" :contrast="contrast"
-          v-on:mouseup="applyDrawing"
-          v-on:dblclick="applyDrawing"
-          ref="draw"
-          id="draw"
-          ></Paper>
 
       </div>
-      <div class="row">
 
-          <h3>Double Click to Fill</h3>
+      <!-- Modal Component for fill error -->
+      <b-modal id="fillErr" ref="fillErr" title="Fill Error" ok-only header-bg-variant="info"
+           header-text-variant="light">
+        <p clas="my-4">You are filling too much. </p>
+        <p clas="my-4"> <strong> Close your loops! </strong> </p>
+      </b-modal>
+
+      <b-collapse class="container-fluid menuOpts" id="collapse1" @shown="testShown">
+          <div class="row flex-row flex-nowrap cardArea mx-auto">
+
+            <div class="mt-2 ml-2 mb-2" v-if="currentStep('brushSize')">
+                <b-card>
+                  <p class="card-text">Brush Size</p>
+                  <b-form-radio-group id="btnradios2"
+                    buttons
+                    button-variant="outline-primary"
+                    size="md"
+                    v-model="brushSize"
+                    :options="brushSizeOptions"
+                    name="radioBtnOutline" />
+                </b-card>
+              </div>
+              <div  class="mt-2 ml-2 mb-2" v-if="currentStep('brushColor')">
+                  <b-card>
+                    <p class="card-text">Brush Color</p>
+                    <b-form-radio-group id="btnradios2"
+                    buttons
+                    button-variant="outline-primary"
+                    size="md"
+                    v-model="brushColor"
+                    :options="brushColorOptions"
+                    name="radioBtnOutline" />
+
+                  </b-card>
+                </div>
+                <div  class="mt-2 ml-2 mb-2" v-if="currentStep('brightness')">
+                    <b-card>
+                      <p class="card-text">Brightness</p>
+                      <vue-slider ref="slider1" v-model="brightness" v-bind="brightnessOptions">
+                      </vue-slider>
+                      {{brightness}}
+                    </b-card>
+                </div>
+                <div  class="mt-2 ml-2 mb-2 " v-if="currentStep('contrast')">
+                    <b-card>
+                      <p class="card-text">Contrast</p>
+                      <vue-slider ref="slider2" v-model="contrast" v-bind="brightnessOptions">
+                      </vue-slider>
+                      {{contrast}}
+                    </b-card>
+                </div>
+
+          </div>
+      </b-collapse>
+
+      <b-navbar  toggleable="md" type="dark"
+      variant="info" class="navbar-fixed-bottom"
+      id="bottonNav" style="position: absolute; bottom: 0; width: 100%;"
+      v-if="currentStep('bottomNav')">
 
 
-          <Paper
-          :paper-src="paperSrc"
-          :fill-error-start="fillErrorStart"
-          :fill-error-end="fillErrorEnd"
-          :paint-size="brushSize"
-          :paint-val="brushColor"
-          :brightness="brightness" :contrast="contrast"
-          ref="fill"
-          id="fill"
-          ></Paper>
+        <!-- Right aligned nav items -->
+        <b-nav v-if="currentStep('hide')">
+          <b-nav-form is-nav-bar class="ml-auto">
+            <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
+            <b-button size="sm" class="my-2 my-sm-0" v-on:click="hide">Hide</b-button>
+          </b-nav-form>
+        </b-nav>
 
+        <b-nav is-nav-bar class="ml-auto" v-if="currentStep('menu')">
+          <b-nav-form>
+            <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
+            <b-btn v-b-toggle.collapse1 variant="primary">Menu</b-btn>
+          </b-nav-form>
+        </b-nav>
 
-      </div>-->
-
-
-
+        <b-nav is-nav-bar class="ml-auto" v-if="currentStep('undo')">
+          <b-nav-form>
+            <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
+            <b-button size="sm" class="my-2 my-sm-0" v-on:click="undo">Undo</b-button>
+          </b-nav-form>
+        </b-nav>
+      </b-navbar>
 
   </div>
 </template>
+
+<style>
+
+  .step1 {
+    position: absolute;
+    top: 56px;
+    background-color: rgba(255,255,255,0.75);
+    width: 100%;
+  }
+
+  .step1.next {
+    position: absolute;
+    top: 56px;
+    background-color: rgba(255,255,255,0);
+    width: 100%;
+  }
+
+  .next {
+    position: absolute;
+    top: 56px;
+    background-color: rgba(255,255,255,0);
+    width: 100%;
+  }
+
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .5s
+  }
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0
+  }
+
+  .tutorial {
+    width: inherit;
+    height: calc(100vh - 56px);
+    overflow-y: hidden;
+  }
+
+  .menuOpts {
+    margin: auto;
+    text-align: center;
+    position: absolute;
+    bottom: 0px;
+    height: 200px;
+  }
+
+  .cardArea {
+    overflow-x: scroll;
+    overflow-y: hidden !important;
+    max-width: 100%;
+    width: fit-content;
+    /*overflow: hidden;*/
+    white-space: nowrap !important;
+  }
+
+  .card-body {
+    white-space: normal;
+    min-width: 200px;
+  }
+
+  .isAuth {
+    height: 100%;
+  }
+
+  canvas {
+
+    display: block;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+
+  .paper {
+    min-height: 100%;
+    max-height: 100%;
+    height: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    background-color: black;
+  }
+
+  .legend {
+    z-index:99;
+    background:rgba(1,1,1,1);
+    position: fixed;
+    right:3px;
+    top:65px;
+    color:white;
+    display: block;
+    border-color: black;
+    border-style: solid;
+    border-radius: 10px;
+  }
+
+  .missed {
+    cursor: pointer;
+    width: 45px;
+    height: 45px;
+    margin-right: 5px;
+    background-color: black;
+    border-color: #FF595E;
+    border-style: solid;
+    border-radius: 10px;
+  }
+
+  .missed.view {
+    background-color: #FF595E;
+  }
+
+  .incorrect {
+    cursor: pointer;
+    width: 45px;
+    height: 45px;
+    margin-right: 5px;
+    background-color: black;
+    border-color: #87BCDE;
+    border-style: solid;
+    border-radius: 10px;
+  }
+
+  .incorrect.view {
+    background-color: #87BCDE;
+  }
+
+  .correct {
+    cursor: pointer;
+    width: 45px;
+    height: 45px;
+    margin-right: 5px;
+    background-color: black;
+    border-color: darkviolet;
+    border-style: solid;
+    border-radius: 10px;
+  }
+
+  .correct.view {
+    background-color: darkviolet;
+  }
+
+  .roi {
+    display: inline-flex;
+    text-align: center;
+    width: 120px;
+  }
+
+  .fireworks {
+    position: absolute;
+    top: 0;
+  }
+</style>
 
 <script>
 /* eslint no-underscore-dangle: ["error", { "allow": ["_items", "_meta", "_links", "_id"] }] */
 
 import Paper from '@/components/Paper';
+import vueSlider from 'vue-slider-component';
 import axios from 'axios';
 import chai from 'chai';
+import numeral from 'numeral';
+import Vue from 'vue';
 import config from '../config';
+import firework from '../lib/firework';
+
+
+Vue.filter('formatNumber', value =>
+    numeral(value).format('0.0[0]'), // displaying other groupings/separators is possible, look at the docs
+);
 
 
 export default {
-  name: 'tutorial',
+  name: 'Tutorial',
   data() {
     return {
-      brushSize: 1,
-      brushColor: 1,
+      overlay: true,
+      paperSrc: null,
+      brushSize: '1',
+      brushSizeOptions: [
+        { text: '1', value: '1' },
+        { text: '2', value: '2' },
+        { text: '3', value: '3' },
+      ],
+      brushColor: '1',
+      brushColorOptions: [
+        { text: 'Erase', value: '0' },
+        { text: 'Paint', value: '1' },
+      ],
       brightness: 50,
       contrast: 50,
-      paperSrc: null,
+      brightnessOptions: {
+        eventType: 'auto',
+        width: 'auto',
+        height: 6,
+        dotSize: 16,
+        dotHeight: null,
+        dotWidth: null,
+        min: 0,
+        max: 100,
+        interval: 1,
+        show: true,
+        speed: 0.5,
+        disabled: false,
+        piecewise: false,
+        piecewiseStyle: {},
+        piecewiseLabel: false,
+        tooltip: false,
+        tooltipDir: 'top',
+        reverse: false,
+        data: null,
+        clickable: true,
+        realTime: true,
+        lazy: true,
+        formatter: null,
+        bgStyle: null,
+        sliderStyle: null,
+        processStyle: null,
+        piecewiseActiveStyle: null,
+        tooltipStyle: null,
+        labelStyle: null,
+        labelActiveStyle: null,
+      },
+      mode: null,
+      image_id: null,
+      user_agent: null,
+      startTime: null,
+      score: {
+        dice: null,
+      },
+      showLegend: false,
+      feedback: {
+        fp: true,
+        fn: true,
+        tp: true,
+      },
+      doFirework: false,
+      stepIdx: 0,
+      showNext: false,
+      n_hide:0,
     };
   },
-  components: { Paper },
-  props: ['task', 'login', 'isAuthenticated'],
-  created() {
+  components: { Paper, vueSlider },
 
-  },
-  mounted() {
-    this.$emit('change_task', this.task);
-    this.setImages();
-  },
   computed: {
+    step() {
+      return this.steps[this.stepIdx];
+    },
+
+    taskInfo() {
+      let taskInfo = null;
+      this.all_tasks.forEach((val) => {
+        if (val.task === this.task) {
+          taskInfo = val;
+        }
+      });
+      return taskInfo;
+    },
+
+    steps() {
+      const self = this;
+      const steps = [
+        { name: 'Step 1',
+          title: `Finding ${this.taskInfo.name}`,
+          description: this.taskInfo.desc,
+          elements: ['step1'] },
+        { name: 'Step 2',
+          title: `Outline the ${this.taskInfo.name}`,
+          description: 'Click + Drag to draw an outline',
+          elements: ['step2'] },
+        { name: 'Step 3',
+          title: `Fill the ${this.taskInfo.name}`,
+          description: 'Double tap to fill the shape',
+          elements: ['step3'] },
+        { name: 'Step 4',
+          title: `Submit your drawing`,
+          description: 'Click the Submit button on the top left',
+          elements: ['submit'] },
+        { name: 'Step 5',
+          title: `Inspect your Results`,
+          description: 'Click on the legend colors to see where you went wrong',
+          init() {
+            // comment
+          },
+          elements: ['step5'] },
+        { name: 'Step 6',
+          title: `Hide/Show your drawing`,
+          description: `You can hide your drawing to see borders more clearly.
+          Click the hide button on the bottom right`,
+          init() {
+            console.log('init');
+            self.showROI('paper');
+            self.showNext = false;
+          },
+          elements: ['bottomNav', 'hide', 'step6'],
+        },
+        { name: 'Step 7',
+          title: `Undo`,
+          description: `Try drawing something, then click Undo. Be careful, you can't redo!`,
+          init() {
+            self.showNext = false;
+          },
+          elements: ['bottomNav', 'hide', 'undo', 'step7'],
+        },
+        { name: 'Step 8',
+          title: 'Menu',
+          description: `Open the menu to see brush options.`,
+          init() {
+            self.showNext = false;
+          },
+          elements: ['bottomNav', 'hide', 'undo', 'step8', 'menu', 'brushSize', 'brushColor', 'brightness', 'contrast'],
+        },
+      ];
+      return steps;
+    },
+
     image_url() {
       chai.assert.isNotNull(this.login.id);
       chai.assert.isNotNull(this.login.token);
@@ -162,138 +556,212 @@ export default {
       let url = `${config.image_url}?where={"task":"${this.task}"}`;
       url = `${url}&max_results=1`;
       url = `${url}&user_id=${this.login.id}&token=${this.login.token}`;
-      // console.log("URL FOR GET IMAGES IS", url)
+      console.log("URL FOR GET IMAGES IS", url)
       return url;
     },
   },
 
+  created() {
+
+  },
+
+
   watch: {
+    task() {
+      this.changeImg();
+    },
 
     isAuthenticated() {
-      this.setImages();
-    },
-
-    task() {
-      this.setImages();
+      this.changeImg();
     },
   },
+
   methods: {
 
-    applyDrawing(pixelLog) {
-      this.$refs.fill.roi.fillPixelLog(pixelLog, this.$refs.fill.draw.LUT);
+    doMouseUp() {
+      console.log(this.stepIdx)
+      if (this.stepIdx == 1){
+        this.stepIdx += 1;
+      }
     },
 
-    fillErrorStart() {},
+    doDblClick() {
+      if (this.stepIdx == 2){
+        this.stepIdx += 1;
+      }
+      console.log(this.step);
+    },
 
-    fillErrorEnd() {},
+    currentStep(name) {
+      return this.step.elements.indexOf(name) >= 0;
+    },
 
-    scroll() {
+    fillErrorStart() {
+      // console.log("starting to revert...", this.$refs.fillErr.show())
+      this.$refs.fillErr.show();
+    },
+
+    testShown() {
+      this.$refs.slider1.refresh();
+      this.$refs.slider2.refresh();
+    },
+
+    fillErrorEnd() {
 
     },
 
-    setImages() {
+    incrementStep() {
+      this.stepIdx += 1;
+      this.showNext = false;
+      this.changeImg().then(() => {
+        if(this.step.init){
+          this.step.init();
+        }
+      });
+
+    },
+
+    showROI(paperRef) {
+      // TODO: show the ROI for this one.
+      const url = `${config.edit_url}/?where={"image_id":"${this.image_id}","mode":"truth"}`;
+      console.log('url is', url, 'showROI');
+      axios.get(url).then((resp) => {
+        const data = resp.data;
+        chai.assert.isNotEmpty(data._items);
+        const pic = data._items[0].pic;
+        const LUT = this.$refs[paperRef].draw.LUT;
+        this.$refs[paperRef].roi.fillPixelLog(pic, LUT);
+        this.showNext = true;
+
+      }).catch((e) => {
+        // comment
+      });
+    },
+
+    hide() {
+      if (this.stepIdx === 5 && this.n_hide === 1) {
+        this.stepIdx += 1;
+      }
+      this.overlay = !this.overlay;
+      this.$refs.paper.roi.visible = this.overlay;
+      if (this.$refs.paper.fp) {
+        this.$refs.paper.fp.visible = this.overlay;
+        this.feedback.fp = this.overlay;
+        this.$refs.paper.tp.visible = this.overlay;
+        this.feedback.tp = this.overlay;
+        this.$refs.paper.fn.visible = this.overlay;
+        this.feedback.fn = this.overlay;
+      }
+      this.n_hide += 1;
+    },
+
+    undo() {
+      if (this.$refs.paper.draw.history.length > 1){
+        this.stepIdx += 1;
+        this.showNext = false;
+      }
+      this.$refs.paper.draw_revert();
+    },
+
+    toggle(roi) {
+      console.log('stepIdx', this.stepIdx);
+      if (this.stepIdx == 4){
+        this.showNext = true;
+      }
+      this.$refs.paper[roi].visible = !this.$refs.paper[roi].visible;
+      this.feedback[roi] = !this.feedback[roi];
+    },
+
+    changeImg() {
+      this.$emit('change_status', null);
       const self = this;
       const url = this.image_url;
-      console.log(url);
-
-      axios.get(url, { params: { _: Math.random() } }).then((resp) => {
-        chai.assert.lengthOf(resp.data._items, 1,
-        'the response from /image does not have exactly 1 item');
+      this.overlay = true;
+      this.feedback.fp = true;
+      this.feedback.fn = true;
+      this.feedback.tp = true;
+      return axios.get(url, { params: { _: Math.random() } }).then((resp) => {
+        chai.assert.lengthOf(resp.data._items, 1, 'the response from /image does not have exactly 1 item');
         const data = resp.data._items[0];
         self.paperSrc = `data:image/jpeg;base64,${data.pic}`;
-      }).catch(() => {
-        // empty
+        self.mode = data.mode;
+        self.image_id = data._id;
+        self.user_agent = navigator.userAgent;
+        self.startTime = new Date();
+        console.log(data);
+        this.$emit('change_status', 'Submit');
+        this.showLegend = false;
+      });
+    },
+
+    playFirework() {
+      this.doFirework = true;
+      firework.playFirework(500).then(() => {
+        this.doFirework = false;
+      });
+    },
+
+    submitImg() {
+      this.stepIdx += 1;
+      const imgbody = {
+        image_id: this.image_id,
+        pic: JSON.stringify(this.$refs.paper.roi.getNonZeroPixels()),
+        mode: this.mode,
+        task: this.task,
+        user_id: this.login.id,
+        user_agent: this.user_agent,
+        resolution: [window.innerWidth, window.innerHeight],
+      };
+      const timeDiff = new Date() - this.startTime; // in miliseconds
+      imgbody.time = timeDiff;
+
+      if (this.mode === 'train') {
+        imgbody.mode = 'try';
+      }
+      this.$emit('change_status', null);
+
+      axios({
+        method: 'POST',
+        url: config.edit_url,
+        crossDomain: true,
+        processData: false,
+        headers: {
+          authorization: config.edit_token,
+          'content-type': 'application/json',
+        },
+        data: JSON.stringify(imgbody),
+      }).then((response) => {
+        console.log('response is', response);
+        if (this.mode === 'train') {
+          const data = response.data;
+          console.log(data.fp);
+          this.overlay = true;
+          this.$refs.paper.add_roi(data.fp, 'fp', 0);
+          this.$refs.paper.add_roi(data.tp, 'tp', 0);
+          this.$refs.paper.add_roi(data.fn, 'fn', 1);
+          this.$refs.paper.roi.remove();
+          this.score.dice = data.score;
+          this.showLegend = true;
+          this.$emit('change_status', 'Next');
+        } else {
+          // fireworks!
+          this.playFirework();
+          this.changeImg();
+          this.$emit('change_status', 'Submit');
+        }
       });
     },
 
   },
+
+  mounted() {
+    this.$emit('change_task', this.task);
+    if (this.paperSrc == null && this.isAuthenticated) {
+      this.changeImg();
+    }
+  },
+
+  props: ['login', 'isAuthenticated', 'task', 'all_tasks'], // login comes from parent element
+
 };
 </script>
-
-<style>
-
-#tutorial {
-  width: inherit;
-  height: inherit;
-  /*margin-top: 20px;*/
-}
-
-canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-}
-
-.paper {
-  background-color: black;
-  width: 100%;
-  height: 100%;
-  }
-
-/*.row {
-  margin-bottom: 20px;
-  min-height: 100%;
-}*/
-
-.landing {
-  height: 100vh;
-  width: 100%;
-  text-align: center;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-.first {
-  height: calc(100vh - 56px);
-}
-
-.design {
-    background-image: url("../assets/banner.svg");
-}
-
-.landing::before {
-  content: '';
-    display: block;
-    width: 90px;
-    height: 66px;
-    position: absolute;
-    left: 50%;
-    top: -4.5em;
-    margin-left: -45px;
-    margin-top: -33px;
-    background-image: url("../assets/arrow.svg");
-}
-
-.empty {
-    background-image: url("../assets/empty.svg");
-}
-
-.gray {
-  background-color: gray;
-  color: white;
-}
-
-.blue {
-  background-color: #313E50;
-  color: white;
-}
-
-.caption {
-  position: relative;
-  left: 0;
-  top: 45%;
-  width: 100%;
-  text-align: center;
-}
-
-.paperImg {
-  width: 300px;
-  height: 300px;
-  position: relative;
-  top: -100px;
-}
-
-
-</style>

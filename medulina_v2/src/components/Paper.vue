@@ -865,12 +865,14 @@ export default {
   beforeDestroy: function beforeDestroy() {
     console.log('destroying', this.id);
     const el = document.getElementById(this.id);
-    el.removeEventListener('resize', this.onresize);
-    el.removeEventListener('mousewheel', this.doZoom);
+    if (el) {
+      el.removeEventListener('resize', this.onresize);
+      el.removeEventListener('mousewheel', this.doZoom);
+    }
   },
 
   mounted() {
-    // console.log("mounting canvas")
+    console.log("mounting canvas");
     const scope = new paper.PaperScope();
     scope.setup(document.getElementById(this.id));
     // console.log("scope is", scope, "id is", this.id)
