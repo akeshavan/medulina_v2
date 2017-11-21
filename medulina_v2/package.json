@@ -27,7 +27,6 @@
     "vue-axios": "^2.0.2",
     "vue-resize": "^0.4.3",
     "vue-router": "^3.0.1",
-    "vue-scrollto": "^2.8.0",
     "vue-slider-component": "^2.4.5"
   },
   "devDependencies": {

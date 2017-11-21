@@ -1,7 +1,7 @@
 <template>
   <div id="app">
 
-    <b-navbar toggleable="md" type="dark" variant="info" sticky>
+    <b-navbar toggleable="md" type="dark" variant="info" fixed>
 
       <b-nav-toggle target="nav_collapse"></b-nav-toggle>
 
@@ -11,7 +11,7 @@
 
       <b-collapse is-nav id="nav_collapse">
 
-        <b-nav is-nav-bar>
+        <b-navbar-nav is-nav-bar>
           <b-nav-item :to="{ name: 'Landing' }" exact>Home</b-nav-item>
           <b-nav-item :to="{ name: 'Tutorial', params: {task: task} }">Tutorial</b-nav-item>
           <b-nav-item :to="{ name: 'Play', params: {task: task} }">Play</b-nav-item>
@@ -30,12 +30,12 @@
           <b-button v-else size="sm" class="my-2 my-sm-0"
           type="submit" @click="authenticate()">Login</b-button>
 
-        </b-nav>
+        </b-navbar-nav>
 
       </b-collapse>
 
       <!-- Right aligned nav items -->
-      <b-nav is-nav-bar class="ml-auto" v-show="$route.path.indexOf('/play') == 0">
+      <b-navbar-nav is-nav-bar class="ml-auto" v-show="$route.path.indexOf('/play') == 0">
 
         <b-nav-form>
           <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
@@ -50,7 +50,7 @@
           </b-button>
         </b-nav-form>
 
-      </b-nav>
+      </b-navbar-nav>
 
     </b-navbar>
     <!-- This is like a navbar. There are two ways to define this
@@ -83,22 +83,10 @@ import auth from './lib/auth'; // leave authentication stuff outside of Vue ?
 import config from './config';
 
 
-const VueScrollTo = require('vue-scrollto');
-
 /* eslint no-underscore-dangle: ["error", { "allow": ["_items", "_meta", "_links", "_id"] }] */
 
 Vue.use(VueResize);
-Vue.use(VueScrollTo, {
-  container: 'body',
-  duration: 500,
-  easing: 'ease',
-  offset: 0,
-  cancelable: true,
-  onDone: false,
-  onCancel: false,
-  x: false,
-  y: true,
-});
+
 Vue.use(VueAxios, axios);
 
 
@@ -268,7 +256,7 @@ export default {
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
-    height: 100%;
+    height: auto;
     overflow: scroll;
     /*margin-top: 60px;*/
   }

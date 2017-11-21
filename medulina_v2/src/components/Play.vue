@@ -45,7 +45,7 @@
         <p clas="my-4"> <strong> Close your loops! </strong> </p>
       </b-modal>
 
-      <b-collapse class="container-fluid menuOpts" id="collapse1">
+      <b-collapse class="container-fluid menuOpts" id="collapse1" @shown="testShown">
           <div class="row flex-row flex-nowrap cardArea mx-auto">
 
             <div class="mt-2 ml-2 mb-2">
@@ -73,7 +73,7 @@
 
                   </b-card>
                 </div>
-                <div  class="mt-2 ml-2 mb-2" @shown="testShown">
+                <div  class="mt-2 ml-2 mb-2" >
                     <b-card>
                       <p class="card-text">Brightness</p>
                       <vue-slider ref="slider1" v-model="brightness" v-bind="brightnessOptions">
@@ -130,7 +130,8 @@
 <style>
   .about {
     width: inherit;
-    height: inherit;
+    height: calc(100vh - 56px);
+    overflow-y: hidden;
   }
 
   .menuOpts {

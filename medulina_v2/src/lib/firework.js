@@ -134,7 +134,7 @@ function render() {
 
 
 function playFirework(duration) {
-  render()
+  render();
   console.log('firework');
   animateParticules(
     anime.random(centerX, centerX),
