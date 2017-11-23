@@ -3,13 +3,13 @@
 
     <!-- STEP 1-->
     <transition name="fade" appear>
-      <div v-if="currentStep('step1') && !showNext" class="step1 pb-2">
+      <div v-if="currentStep('step1')" class="step1 pb-2">
         <b-container>
           <h3 class="pt-4 pb-3">{{taskInfo.tutorial_title}}</h3>
           <p class="lead"> {{taskInfo.desc}}</p>
 
           <div class="mt-2">
-            <b-button variant="info" v-if="!showNext" @click="showROI('paper')">
+            <b-button variant="info"  @click="incrementStep(0)">
               Show {{taskInfo.name}}
             </b-button>
           </div>
@@ -18,9 +18,9 @@
     </transition>
 
     <!-- NEXT -->
-      <div class="step1 next pt-2 pb-2" v-if="showNext">
+      <div class="step1 next pt-2 pb-2" v-if="currentStep('start')">
         <transition name="fade">
-          <b-button variant="success" v-if="showNext" @click="incrementStep">
+          <b-button variant="info" @click="incrementStep(1)" size="lg">
             Next
           </b-button>
         </transition>
@@ -28,84 +28,82 @@
 
       <!-- STEP 2-->
       <transition name="fade">
-        <div v-if="currentStep('step2')" class="next">
+        <div v-if="currentStep('step2') || currentStep('step3') || currentStep('submit')" class="next">
           <b-alert show variant="light" class="mb-0">
-            <strong>
-              <h5> Step 1: Outline the {{taskInfo.name}} </h5>
-            </strong>
-
-              Click and Drag to outline
-          </b-alert>
-
-          <b-alert :show="currentStep('step2')" dismissible variant="warning" class="fixed-bottom">
-            <strong>To Zoom</strong>: Scroll or Pinch
-            <br>
-            <strong>To Pan</strong>: Right-Click & Drag or Two Finger Drag
-          </b-alert>
-        </div>
-      </transition>
-
-      <!-- STEP 3-->
-      <transition name="fade">
-        <div v-if="currentStep('step3')" class="next">
-          <b-alert show variant="light" class="mb-0">
-            <strong>
-              <h5> Step 2: Fill the {{taskInfo.name}} </h5>
-            </strong>
-
-              Double click (or tap) inside the shape to fill it
-          </b-alert>
-          <b-alert show dismissible variant="danger" class="mt-0 mb-0 fixed-bottom">
-            <strong>Warning</strong>: Make sure your shape is closed before filling
-          </b-alert>
-
-        </div>
-      </transition>
-
-      <!-- STEP 4 -->
-      <transition name="fade">
-        <div v-if="currentStep('submit')" class="next">
-          <b-alert show variant="light" class="mb-0">
+            <b-progress :value="stepIdx" :max="steps.length-1" class="mb-3"></b-progress>
             <strong>
               <h5> {{step.title}} </h5>
             </strong>
+
               {{step.description}}
           </b-alert>
+
+
         </div>
       </transition>
+
+      <b-alert :show="currentStep('step2')" dismissible variant="warning" class="fixed-bottom">
+        <strong>To Zoom</strong>: Scroll or Pinch
+        <br>
+        <strong>To Pan</strong>: Right-Click & Drag or Two Finger Drag
+      </b-alert>
+
+      <b-alert :show="currentStep('step3')" dismissible variant="danger" class="mt-0 mb-0 fixed-bottom">
+        <strong>Warning</strong>: Make sure your shape is closed before filling
+      </b-alert>
+
+
 
       <!-- STEP 5 -->
       <transition name="fade">
         <div v-if="currentStep('step5')" class="next">
           <b-alert show variant="light" class="mb-0 fixed-bottom">
+            <b-progress :value="stepIdx" :max="steps.length-1" class="mb-3"></b-progress>
             <strong>
               <h5> {{step.title}} </h5>
             </strong>
               {{step.description}}
+              <hr v-if="showNext">
+              <b-button variant="outline-secondary" v-if="showNext" @click="incrementStep(1)">
+                Next
+              </b-button>
           </b-alert>
         </div>
       </transition>
 
-      <!-- STEP 6 -->
+      <!-- STEP 6-9 -->
       <transition name="fade">
-        <div v-if="currentStep('step6')" class="next">
-          <b-alert show variant="light" class="mb-0">
-            <strong>
-              <h5> {{step.title}} </h5>
-            </strong>
-              {{step.description}}
-          </b-alert>
-        </div>
-      </transition>
-
-      <!-- STEP 7 -->
-      <transition name="fade">
-        <div v-if="currentStep('step7')" class="next ">
+        <div v-if="currentStep('step6') || currentStep('step7') || currentStep('step8') || currentStep('step9')"
+          class="next ">
           <b-alert show variant="light" class="">
+            <b-progress :value="stepIdx" :max="steps.length-1" class="mb-3"></b-progress>
             <strong>
               <h5> {{step.title}} </h5>
             </strong>
               {{step.description}}
+              <hr v-if="showNext">
+              <b-button variant="outline-secondary" v-if="showNext" @click="incrementStep(1)">
+                Next
+              </b-button>
+          </b-alert>
+        </div>
+      </transition>
+
+
+
+      <!-- STEP 10 -->
+      <transition name="fade">
+        <div v-if="currentStep('step10')" class="next ">
+          <b-alert show variant="light" class="">
+            <b-progress :value="stepIdx" :max="steps.length-1" class="mb-3"></b-progress>
+            <strong>
+              <h5> {{step.title}} </h5>
+            </strong>
+              {{step.description}}
+              <hr>
+              <b-button variant="primary" :to="'/play/'+this.task">
+                Start Playing
+              </b-button>
           </b-alert>
         </div>
       </transition>
@@ -115,8 +113,8 @@
       :paint-size="brushSize"
       :paint-val="brushColor" ref="paper"
       :brightness="brightness" :contrast="contrast"
-      v-on:mouseup="doMouseUp"
-      v-on:dblclick="doDblClick"
+      v-on:draw="doMouseUp"
+      v-on:fillSuccess="doDblClick"
       id="canvas-id"
       ></Paper>
 
@@ -277,7 +275,7 @@
     text-align: center;
     position: absolute;
     bottom: 0px;
-    height: 195px;
+    height: 200px;
   }
 
   .cardArea {
@@ -470,7 +468,7 @@ export default {
       doFirework: false,
       stepIdx: 0,
       showNext: false,
-      n_hide:0,
+      n_hide: 0,
     };
   },
   components: { Paper, vueSlider },
@@ -496,7 +494,19 @@ export default {
         { name: 'Step 1',
           title: `Finding ${this.taskInfo.name}`,
           description: this.taskInfo.desc,
+          init() {
+
+          },
           elements: ['step1'] },
+        { name: 'Step 1',
+          title: `Finding ${this.taskInfo.name}`,
+          description: this.taskInfo.desc,
+          init() {
+            self.showROI('paper');
+            self.showNext = false;
+          },
+          elements: ['start'],
+        },
         { name: 'Step 2',
           title: `Outline the ${this.taskInfo.name}`,
           description: 'Click + Drag to draw an outline',
@@ -506,18 +516,18 @@ export default {
           description: 'Double tap to fill the shape',
           elements: ['step3'] },
         { name: 'Step 4',
-          title: `Submit your drawing`,
+          title: 'Submit your drawing',
           description: 'Click the Submit button on the top left',
           elements: ['submit'] },
         { name: 'Step 5',
-          title: `Inspect your Results`,
+          title: 'Inspect your Results',
           description: 'Click on the legend colors to see where you went wrong',
           init() {
             // comment
           },
           elements: ['step5'] },
         { name: 'Step 6',
-          title: `Hide/Show your drawing`,
+          title: 'Hide/Show your drawing',
           description: `You can hide your drawing to see borders more clearly.
           Click the hide button on the bottom right`,
           init() {
@@ -528,8 +538,9 @@ export default {
           elements: ['bottomNav', 'hide', 'step6'],
         },
         { name: 'Step 7',
-          title: `Undo`,
-          description: `Try drawing something, then click Undo. Be careful, you can't redo!`,
+          title: 'Undo',
+          description: `Try drawing something, then click Undo.
+          Be careful, you can't redo!`,
           init() {
             self.showNext = false;
           },
@@ -537,11 +548,32 @@ export default {
         },
         { name: 'Step 8',
           title: 'Menu',
-          description: `Open the menu to see brush options.`,
+          description: 'Open the menu to see more options',
           init() {
             self.showNext = false;
           },
           elements: ['bottomNav', 'hide', 'undo', 'step8', 'menu', 'brushSize', 'brushColor', 'brightness', 'contrast'],
+        },
+        { name: 'Step 9',
+          title: 'Brush Size, Erase/Paint, Brightness, and Contrast',
+          description: `Try changing your brush size and using an eraser.
+          Changing the brightness and contrast can help better define the borders of your target structure.`,
+          init() {
+            self.showNext = true;
+          },
+          elements: ['bottomNav', 'hide', 'undo', 'step9', 'menu', 'brushSize', 'brushColor', 'brightness', 'contrast'],
+        },
+        { name: 'Step 10',
+          title: 'Scoring Points',
+          description: `
+            Once you're done training, you'll get new images.
+            You get a point for each new image you submit.
+          `,
+          init() {
+            self.doFirework = true;
+            self.playFirework();
+          },
+          elements: ['bottomNav', 'hide', 'undo', 'step10', 'menu', 'brushSize', 'brushColor', 'brightness', 'contrast'],
         },
       ];
       return steps;
@@ -568,6 +600,7 @@ export default {
 
   watch: {
     task() {
+      this.stepIdx = 0;
       this.changeImg();
     },
 
@@ -580,14 +613,14 @@ export default {
 
     doMouseUp() {
       console.log(this.stepIdx)
-      if (this.stepIdx == 1){
-        this.stepIdx += 1;
+      if (this.stepIdx === 2){
+        this.incrementStep(0);
       }
     },
 
     doDblClick() {
-      if (this.stepIdx == 2){
-        this.stepIdx += 1;
+      if (this.stepIdx === 3){
+        this.incrementStep(0);
       }
       console.log(this.step);
     },
@@ -602,22 +635,36 @@ export default {
     },
 
     testShown() {
-      this.$refs.slider1.refresh();
-      this.$refs.slider2.refresh();
+      if (this.stepIdx === 8) {
+        this.incrementStep(0);
+      }
+      if (this.$refs.slider1) {
+        this.$refs.slider1.refresh();
+        this.$refs.slider2.refresh();
+      }
     },
 
     fillErrorEnd() {
 
     },
 
-    incrementStep() {
+    incrementStep(change) {
       this.stepIdx += 1;
       this.showNext = false;
-      this.changeImg().then(() => {
-        if(this.step.init){
+      console.log('stepIdx is', this.stepIdx);
+      if (change) {
+        this.changeImg().then(() => {
+          if (this.step.init) {
+            this.step.init();
+          }
+        });
+      } else {
+        if (this.step.init) {
+          console.log('running init')
           this.step.init();
         }
-      });
+      }
+
 
     },
 
@@ -631,7 +678,7 @@ export default {
         const pic = data._items[0].pic;
         const LUT = this.$refs[paperRef].draw.LUT;
         this.$refs[paperRef].roi.fillPixelLog(pic, LUT);
-        this.showNext = true;
+        //this.showNext = true;
 
       }).catch((e) => {
         // comment
@@ -639,8 +686,8 @@ export default {
     },
 
     hide() {
-      if (this.stepIdx === 5 && this.n_hide === 1) {
-        this.stepIdx += 1;
+      if (this.stepIdx === 6 && this.n_hide === 1) {
+        this.incrementStep(0);
       }
       this.overlay = !this.overlay;
       this.$refs.paper.roi.visible = this.overlay;
@@ -657,15 +704,14 @@ export default {
 
     undo() {
       if (this.$refs.paper.draw.history.length > 1){
-        this.stepIdx += 1;
-        this.showNext = false;
+        this.incrementStep(0);
       }
       this.$refs.paper.draw_revert();
     },
 
     toggle(roi) {
       console.log('stepIdx', this.stepIdx);
-      if (this.stepIdx == 4){
+      if (this.stepIdx === 5){
         this.showNext = true;
       }
       this.$refs.paper[roi].visible = !this.$refs.paper[roi].visible;
@@ -696,13 +742,13 @@ export default {
 
     playFirework() {
       this.doFirework = true;
-      firework.playFirework(500).then(() => {
+      return firework.playFirework(500).then(() => {
         this.doFirework = false;
       });
     },
 
     submitImg() {
-      this.stepIdx += 1;
+      this.incrementStep(0);
       const imgbody = {
         image_id: this.image_id,
         pic: JSON.stringify(this.$refs.paper.roi.getNonZeroPixels()),

@@ -84,13 +84,13 @@
 
     <!--This is the current route -->
     <div class="routerContent">
-      <keep-alive>
+      
         <router-view ref="route" :login="login" :isAuthenticated="isAuthenticated"
         :all_tasks="all_tasks" :task="task"
         v-on:change_task="setTask" v-on:change_status="changeStatus"
         >
         </router-view>
-      </keep-alive>
+
     </div>
 
   </div>
@@ -291,14 +291,6 @@ export default {
     },
   },
 };
-
-/* This part for no touch scrolling  */
-
-/* document.ontouchmove = function(e){
-    if (e.target.type != 'range'){
-      e.preventDefault();
-    }
-} */
 
 </script>
 

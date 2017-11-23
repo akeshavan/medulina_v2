@@ -13,7 +13,7 @@ function gup(url, name, win, callback) {
   const regexS = `[?&]${name}=([^&#]*)`;
   const regex = new RegExp(regexS);
   const results = regex.exec(url);
-
+  console.log('gup', results);
   if (results != null) {
     win.close();
     callback(results[1]);
@@ -75,6 +75,7 @@ function getGithubCode(_url, REDIRECT, callback) {
       if (win.document.URL.indexOf(REDIRECT) !== -1) {
         window.clearInterval(pollTimer);
         const url = win.document.URL;
+        console.log('url', url);
         gup(url, 'code', win, (code) => {
           authenticateAgainstServer(code, callback);
         });

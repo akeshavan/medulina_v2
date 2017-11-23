@@ -8,6 +8,7 @@
 
 <script>
 import chai from 'chai';
+import Hammer from 'hammerjs';
 import paper from '../../node_modules/paper/dist/paper-core.min';
 
 paper.install(window);
@@ -438,6 +439,10 @@ export default {
       fn: null,
       view: null,
       zoomFactor: 1,
+      touch: {
+        startScale: null,
+        mode: null,
+      },
       // paintVal: 1,
       // paintSize: 1,
       scope: null,
@@ -482,6 +487,7 @@ export default {
       if (this.panMouseDown == null) {
         this.panMouseDown = e;
       }
+      // console.log('panMouseDown', this.panMouseDown);
 
       this.panFactor.x = e.point.x - this.panMouseDown.point.x;
       this.panFactor.y = e.point.y - this.panMouseDown.point.y;
@@ -513,8 +519,9 @@ export default {
       if (doDrag) {
         // TODO: this[type].onMouseDrag =
         this[type].onMouseDrag = function onMouseDrag(e) {
-          if (e.event.buttons === 2) {
+          if (e.event.buttons === 2 || self.touch.mode) {
             // right click and drag
+            console.log('mousedrag?')
             self.doPan(e);
           }
         };
@@ -552,7 +559,7 @@ export default {
     },
 
     reset_draw(e) {
-      // console.log("resetting draw")
+      // console.log("resetting draw");
       this.draw.last = null;
       this.draw.counter = 0;
       this.panFactor.x = 0;
@@ -616,6 +623,7 @@ export default {
       /*
         Revert based on history. if init_pop is 0 then it undos a bad floodFill
       */
+      console.log('in draw_revert');
       let roi = Roi;
       roi = roi || this.roi;
       let initPop = InitPop;
@@ -715,7 +723,7 @@ export default {
         return nei;
       }
 
-      const queue = new Queue(node);
+      let queue = new Queue(node);
       let numFill = 0;
       while (queue.length > 0) {
         node = queue.pop();
@@ -735,6 +743,12 @@ export default {
           this.draw_addHistory(x, y, roi.pixelLog[x][y], replacementVal);
           roi.setPixelLogNoColor(x, y, this.draw.LUT[replacementVal], replacementVal);
           numFill += 1;
+          if (numFill > 20000) {
+            console.log('BREAKING')
+            queue = [];
+            this.fillErrorStart();
+            break;
+          }
           for (let i = 0; i < nei.length; i += 1) {
             const yNei = nei[i];
             if (roi.pixelLog[x][yNei] === targetVal) {
@@ -749,12 +763,13 @@ export default {
       } // end while loop
 
       console.log(numFill);
-      if (numFill < 30000) {
+      if (numFill < 20000) {
         roi.fillPixelLogFlat(this.draw.history[this.draw.history.length - 1],
           replacementVal, this.draw.LUT);
+        this.$emit('fillSuccess');
       } else {
-        this.fillErrorStart();
-        console.log('starting revert', this.draw.history);
+
+        console.log('starting revert', numFill, this.draw.history);
         // ui.startProgress()
         if (this.draw.history.length === 1) {
           // omg WHY anisha this is so hacky. write better
@@ -763,8 +778,10 @@ export default {
         } else {
           this.draw_revert(roi, 0);
         }
-        console.log('ending revert', this.draw.history);
-        this.fillErrorEnd();
+        this.$nextTick(() => {
+          console.log('ending revert', this.draw.history);
+          this.fillErrorEnd();
+        });
       }
     },
 
@@ -789,7 +806,7 @@ export default {
     },
 
     dragHandler(e) {
-      if (e.event.buttons === 2) {
+      if (e.event.buttons === 2 || this.touch.mode) {
         // right click and drag
         this.doPan(e);
       } else {
@@ -801,6 +818,15 @@ export default {
       const bright = ((parseInt(this.brightness, 10) - 50) / 50) + 1;
       const cont = (parseInt(this.contrast, 10) * 2) - 100;
       this.base.brightness_contrast(bright, cont);
+    },
+
+    removeEvents() {
+      const el = document.getElementById(this.id);
+      if (el) {
+        console.log('removing events');
+        el.removeEventListener('resize', this.onresize);
+        el.removeEventListener('mousewheel', this.doZoom);
+      }
     },
 
 
@@ -822,12 +848,13 @@ export default {
         // ROI events
         self.roi.onDoubleClick = (e) => {
           self.dblClickHandler(e);
-          self.$emit('dblclick', self.roi.getNonZeroPixels());
+          // self.$emit('dblclick', self.roi.getNonZeroPixels());
         };
         self.roi.onMouseDrag = self.dragHandler;
         self.roi.onMouseUp = (e) => {
           self.reset_draw(e);
-          self.$emit('mouseup', self.roi.getNonZeroPixels());
+          console.log('touchmode', self.touch.mode);
+          self.$emit('draw', self.roi.getNonZeroPixels());
         };
         self.brightcont();
       };
@@ -862,17 +889,14 @@ export default {
     'paintSize', 'paintVal', 'brightness',
     'contrast', 'id', 'mouseUp'],
 
-  beforeDestroy: function beforeDestroy() {
+  beforeDestroy: function beforeDestroy(to, from, next) {
     console.log('destroying', this.id);
-    const el = document.getElementById(this.id);
-    if (el) {
-      el.removeEventListener('resize', this.onresize);
-      el.removeEventListener('mousewheel', this.doZoom);
-    }
+    this.removeEvents();
+    next();
   },
 
   mounted() {
-    console.log("mounting canvas");
+    console.log('mounting canvas');
     const scope = new paper.PaperScope();
     scope.setup(document.getElementById(this.id));
     // console.log("scope is", scope, "id is", this.id)
@@ -883,6 +907,53 @@ export default {
     console.log(el);
     el.addEventListener('resize', this.onresize);
     el.addEventListener('mousewheel', this.doZoom);
+
+    const self = this;
+
+    const mc = new Hammer.Manager(el, {
+      stopPropagation: true,
+      preventDefault: true,
+    });
+    const Pinch = new Hammer.Pinch();
+
+    // add the recognizer
+    mc.add(Pinch);
+
+    let tmpzoom = 1;
+
+    // subscribe to events
+    mc.on('pinch', (e) => {
+        // do something cool
+
+      if (e) {
+        e.preventDefault();
+        tmpzoom = xfm.clamp((e.scale / self.touch.startScale) * self.zoomFactor, 1, 5);
+        self.view.setZoom(tmpzoom);
+      }
+    });
+
+    mc.on('pinchend', (e) => {
+        // do something cool
+        // console.log("pinchend", window.mode)
+      console.log('ending pinch');
+      self.touch.mode = false;
+      if (e) {
+        e.preventDefault();
+
+        self.zoomFactor = tmpzoom;
+        self.panMouseDown = null;
+      }
+    });
+
+    mc.on('pinchstart', (e) => {
+      // do something cool
+      console.log('starting pinch');
+      if (e) {
+        self.touch.mode = true;
+        e.preventDefault();
+        self.touch.startScale = e.scale;
+      }
+    });
   },
 };
 

@@ -1,6 +1,14 @@
 <template>
-  <div class="about" ref="about">
+  <div class="play" ref="play">
     <div v-if="isAuthenticated" class="isAuth">
+      <b-alert :show="fillErr" class="mb-0"
+      variant="danger" :dismissible="showDismiss"
+      v-on:dismissed="fillErr=false;"
+      >
+        You are filling too much. Remember to close your loops.
+      </b-alert>
+
+
       <Paper  :paper-src="paperSrc" :fill-error-start="fillErrorStart"
       :fill-error-end="fillErrorEnd"
       :paint-size="brushSize"
@@ -44,6 +52,8 @@
         <p clas="my-4">You are filling too much. </p>
         <p clas="my-4"> <strong> Close your loops! </strong> </p>
       </b-modal>
+
+
 
       <b-collapse class="container-fluid menuOpts" id="collapse1" @shown="testShown">
           <div class="row flex-row flex-nowrap cardArea mx-auto">
@@ -93,42 +103,39 @@
           </div>
       </b-collapse>
 
-      <b-navbar  toggleable="md" type="dark" variant="info" class="navbar-fixed-bottom" id="bottonNav" style="position: absolute; bottom: 0; width: 100%;">
-
-
-        <!-- Right aligned nav items -->
-        <b-nav>
-          <b-nav-form is-nav-bar class="ml-auto">
-            <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
-            <b-button size="sm" class="my-2 my-sm-0" v-on:click="hide">Hide</b-button>
-          </b-nav-form>
-        </b-nav>
-
-        <b-nav is-nav-bar class="ml-auto">
-          <b-nav-form>
-            <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
-            <b-btn v-b-toggle.collapse1 variant="primary">Menu</b-btn>
-          </b-nav-form>
-        </b-nav>
-
-        <b-nav is-nav-bar class="ml-auto">
-          <b-nav-form>
-            <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
-            <b-button size="sm" class="my-2 my-sm-0" v-on:click="undo">Undo</b-button>
-          </b-nav-form>
-        </b-nav>
-
-
-
-
-
-      </b-navbar>
     </div>
-  </div>
+    <b-navbar  toggleable="md" type="dark" variant="info"
+      class="navbar-fixed-bottom" id="bottonNav"
+      style="position: fixed !important; bottom: 0; width: 100%;">
+
+
+      <!-- Right aligned nav items -->
+      <b-navbar-nav>
+        <b-nav-form is-nav-bar class="ml-auto">
+          <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
+          <b-button size="sm" class="my-2 my-sm-0" v-on:click="hide">Hide</b-button>
+        </b-nav-form>
+      </b-navbar-nav>
+
+      <b-navbar-nav is-nav-bar class="ml-auto">
+        <b-nav-form>
+          <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
+          <b-btn v-b-toggle.collapse1 variant="primary">Menu</b-btn>
+        </b-nav-form>
+      </b-navbar-nav>
+
+      <b-navbar-nav is-nav-bar class="ml-auto">
+        <b-nav-form>
+          <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
+          <b-button size="sm" class="my-2 my-sm-0" v-on:click="undo">Undo</b-button>
+        </b-nav-form>
+      </b-navbar-nav>
+    </b-navbar>
+  </div> <!-- play -->
 </template>
 
 <style>
-  .about {
+  .play {
     width: inherit;
     height: calc(100vh - 56px);
     overflow-y: hidden;
@@ -139,7 +146,7 @@
     text-align: center;
     position: absolute;
     bottom: 0px;
-    height: 195px;
+    height: 200px;
   }
 
   .cardArea {
@@ -157,7 +164,7 @@
   }
 
   .isAuth {
-    height: 100%;
+    height: calc(100vh - 56px - 54px);
   }
 
   canvas {
@@ -266,8 +273,15 @@ Vue.filter('formatNumber', value =>
 );
 
 
+function stopBounce(e) {
+  // console.log('touchmove', e);
+  if (e.target.type !== 'range') {
+    e.preventDefault();
+  }
+}
+
 export default {
-  name: 'About',
+  name: 'Play',
   data() {
     return {
       overlay: true,
@@ -331,6 +345,8 @@ export default {
         tp: true,
       },
       doFirework: false,
+      fillErr: false,
+      showDismiss: false,
     };
   },
   components: { Paper, vueSlider },
@@ -368,7 +384,9 @@ export default {
   methods: {
     fillErrorStart() {
       // console.log("starting to revert...", this.$refs.fillErr.show())
-      this.$refs.fillErr.show();
+      //this.$refs.fillErr.show();
+      console.log('starting the fill error thing');
+      this.fillErr = true;
     },
 
     testShown() {
@@ -377,7 +395,8 @@ export default {
     },
 
     fillErrorEnd() {
-
+      //this.fillErr = false;
+      this.showDismiss = true;
     },
 
     hide() {
@@ -483,11 +502,29 @@ export default {
 
   },
 
+  beforeRouteLeave(from, to, next) {
+    console.log('leaving', this.id);
+    //document.body.removeEventListener('touchmove', stopBounce);
+    //this.$refs.paper.removeEvents();
+    next();
+  },
+
+  beforeRouteEnter(from, to, next) {
+    console.log('entering');
+    //document.body.addEventListener('touchmove', stopBounce);
+    next((vm) => {
+      //vm.$refs.paper.onresize();
+      console.log('resized on enter');
+    });
+  },
+
   mounted() {
     this.$emit('change_task', this.task);
     if (this.paperSrc == null && this.isAuthenticated) {
       this.changeImg();
     }
+
+    /* This part for no touch scrolling  */
   },
 
   props: ['login', 'isAuthenticated', 'task'], // login comes from parent element
