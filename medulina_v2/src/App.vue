@@ -93,6 +93,16 @@
 
     </div>
 
+    <footer class="footer pt-5 pb-5 bg-info" v-show="!($route.path.indexOf('/play') == 0) && !($route.path.indexOf('/tutorial') == 0)">
+      <b-container responsive>
+        <b-row>
+          <b-col>
+            <b-link to="/about">About</b-link>
+          </b-col>
+        </b-row>
+      </b-container>
+    </footer>
+
   </div>
 </template>
 
@@ -325,5 +335,13 @@ export default {
     z-index: 9;
   }
 
+  .footer{
+    background-color: black;
+    color:white;
+  }
+
+  .footer a {
+    color: white;
+  }
 
 </style>

@@ -892,7 +892,9 @@ export default {
   beforeDestroy: function beforeDestroy(to, from, next) {
     console.log('destroying', this.id);
     this.removeEvents();
-    next();
+    if (next) {
+      next();
+    }
   },
 
   mounted() {

@@ -6,6 +6,7 @@ import BootstrapVue from 'bootstrap-vue';
 import Tutorial from '@/components/Tutorial';
 import Leaderboard from '@/components/Leaderboard';
 import Profile from '@/components/Profile';
+import About from '@/components/About';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
@@ -19,6 +20,11 @@ export default new Router({
       path: '/',
       name: 'Landing',
       component: Landing,
+    },
+    {
+      path: '/about',
+      name: 'About',
+      component: About,
     },
     {
       path: '/play/:task',
