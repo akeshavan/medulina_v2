@@ -84,7 +84,7 @@
 
     <!--This is the current route -->
     <div class="routerContent">
-      
+
         <router-view ref="route" :login="login" :isAuthenticated="isAuthenticated"
         :all_tasks="all_tasks" :task="task"
         v-on:change_task="setTask" v-on:change_status="changeStatus"
@@ -321,8 +321,9 @@ export default {
     width: 25px;
   }
 
-
-
+  nav {
+    z-index: 9;
+  }
 
 
 </style>

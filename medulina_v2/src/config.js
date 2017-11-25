@@ -6,7 +6,7 @@ export default {
   image_url: 'https://api.medulina.com/api/v1/image/',
   edit_url: 'https://api.medulina.com/api/v1/mask',
   edit_token: 'NnrP65CXaSnZ0aLPZ8Ox64d0pDlSKS0R8wpymwLr',
-  REDIRECT: '769f8106.ngrok.io', // '50a4075c.ngrok.io', // 'localhost:8080',
+  REDIRECT: 'localhost:8080', // '50a4075c.ngrok.io', // 'localhost:8080',
   // note: keep the /#/ in the github redirect, but not in this redirect.
   // also no http: or https:// in the redirect
 };

@@ -314,7 +314,7 @@
   }
 
   .legend {
-    z-index:99;
+    z-index:8;
     background:rgba(1,1,1,1);
     position: fixed;
     right:3px;
