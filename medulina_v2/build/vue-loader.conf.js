@@ -6,12 +6,15 @@ const sourceMapEnabled = isProduction
   ? config.build.productionSourceMap
   : config.dev.cssSourceMap
 
+const loaderObj = utils.cssLoaders({
+  sourceMap: sourceMapEnabled,
+  extract: isProduction
+})
+loaderObj['scss'] = 'vue-style-loader!css-loader!sass-loader'
+loaderObj['sass'] = 'vue-style-loader!css-loader!sass-loader?indentedSyntax',
 
 module.exports = {
-  loaders: utils.cssLoaders({
-    sourceMap: sourceMapEnabled,
-    extract: isProduction
-  }),
+  loaders: loaderObj,
   cssSourceMap: sourceMapEnabled,
   transformToRequire: {
     video: 'src',

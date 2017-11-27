@@ -39,7 +39,7 @@
 
         <b-nav-form>
           <!--<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>-->
-          <b-button size="sm" class="my-2 my-sm-0" v-on:click="doAction" :disabled="!status">
+          <b-button variant="danger" size="sm" class="my-2 my-sm-0" v-on:click="doAction" :disabled="!status">
             <span v-if="status">
               {{status}}
             </span>
@@ -304,9 +304,16 @@ export default {
 
 </script>
 
+<style lang="scss">
+
+  @import "./custom-bootstrap.scss";
+  @import "../node_modules/bootstrap/scss/bootstrap.scss";
+
+</style>
+
 <style>
   #app {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    /* font-family: 'Avenir', Helvetica, Arial, sans-serif; */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;

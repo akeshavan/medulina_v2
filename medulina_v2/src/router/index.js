@@ -7,8 +7,8 @@ import Tutorial from '@/components/Tutorial';
 import Leaderboard from '@/components/Leaderboard';
 import Profile from '@/components/Profile';
 import About from '@/components/About';
-import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap-vue/dist/bootstrap-vue.css';
+// import 'bootstrap/dist/css/bootstrap.css';
+// import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 Vue.use(BootstrapVue);
 

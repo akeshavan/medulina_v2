@@ -267,18 +267,13 @@ import Vue from 'vue';
 import config from '../config';
 import firework from '../lib/firework';
 
+import style from '../custom-bootstrap.scss';
+
 
 Vue.filter('formatNumber', value =>
     numeral(value).format('0.0[0]'), // displaying other groupings/separators is possible, look at the docs
 );
 
-
-function stopBounce(e) {
-  // console.log('touchmove', e);
-  if (e.target.type !== 'range') {
-    e.preventDefault();
-  }
-}
 
 export default {
   name: 'Play',
@@ -325,7 +320,9 @@ export default {
         formatter: null,
         bgStyle: null,
         sliderStyle: null,
-        processStyle: null,
+        processStyle: {
+          'background-color': style.locals.primary,
+        },
         piecewiseActiveStyle: null,
         tooltipStyle: null,
         labelStyle: null,
