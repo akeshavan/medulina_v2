@@ -1,11 +1,11 @@
 <template>
   <div id="app">
 
-    <b-navbar toggleable="md" type="dark" variant="info" fixed>
+    <b-navbar toggleable="md" type="light" variant="info" fixed>
 
       <b-nav-toggle target="nav_collapse"></b-nav-toggle>
 
-      <b-navbar-brand href="#">
+      <b-navbar-brand :to="{ name: 'Landing' }">
         <img src="./assets/logo.svg" class="logo"/>
       </b-navbar-brand>
 
@@ -14,12 +14,13 @@
         <b-navbar-nav is-nav-bar>
           <b-nav-item :to="{ name: 'Landing' }" exact>Home</b-nav-item>
           <b-nav-item :to="{ name: 'Tutorial', params: {task: task} }">Tutorial</b-nav-item>
-          <b-nav-item :to="{ name: 'Play', params: {task: task} }">Play</b-nav-item>
+          <b-nav-item v-if="login.consent" :to="{ name: 'Play', params: {task: task} }">Play</b-nav-item>
+          <b-nav-item v-else :to="{ name: 'Consent' }">Play</b-nav-item>
           <b-nav-item :to="{ name: 'Leaderboard', params: {task: task} }">Leaderboard</b-nav-item>
 
           <!--<b-nav-item to="/coins/ethereum" exact>Ethereum</b-nav-item>
           <b-nav-item to="/coins/bitcoin" exact>Bitcoin</b-nav-item>-->
-          <b-nav-item-dropdown right v-if="isAuthenticated">
+          <b-nav-item-dropdown right v-if="login.loginType == 'github'">
             <!-- Using button-content slot -->
             <template slot="button-content" >
               <em>{{login.username}}</em>
@@ -88,12 +89,14 @@
         <router-view ref="route" :login="login" :isAuthenticated="isAuthenticated"
         :all_tasks="all_tasks" :task="task"
         v-on:change_task="setTask" v-on:change_status="changeStatus"
+        v-on:has_consented="setConsent"
+        v-on:needs_authentication="authenticate"
         >
         </router-view>
 
     </div>
 
-    <footer class="footer pt-5 pb-5 bg-info" v-show="!($route.path.indexOf('/play') == 0) && !($route.path.indexOf('/tutorial') == 0)">
+    <footer class="footer pt-5 pb-5 bg-info dark" v-show="!($route.path.indexOf('/play') == 0) && !($route.path.indexOf('/tutorial') == 0)">
       <b-container responsive>
         <b-row>
           <b-col>
@@ -111,6 +114,8 @@ import Vue from 'vue';
 import VueAxios from 'vue-axios';
 import axios from 'axios';
 import VueResize from 'vue-resize';
+import chai from 'chai';
+import store from 'store';
 import auth from './lib/auth'; // leave authentication stuff outside of Vue ?
 import config from './config';
 
@@ -145,7 +150,10 @@ export default {
           They look bright on an MRI scan, and can be anywhere in the brain.
         `,
         },
-        { name: 'Stroke', task: 'atlas_lesions', level: 'medium', text: `
+        { name: 'Stroke',
+          task: 'atlas_lesions',
+          level: 'medium',
+          text: `
         Strokes occur when the brain is damaged by lack of blood flow or by bleeding in the brain. Help us teach computers how to find damage caused by strokes.
 
         The areas most damaged by a stroke are easy to spot, but finding the full extent of the damage can be tricky.
@@ -190,6 +198,7 @@ export default {
         transfer_user_id: null,
         user_id: null,
         token: null,
+        loginType: 'anon',
       },
     };
   },
@@ -229,8 +238,15 @@ export default {
       });
     },
 
-    getUserInfo() {
-      const token = auth.getToken();
+    setConsent(inputs) {
+      chai.assert.equal(inputs.user_id, this.login.id);
+      this.login.consent = inputs.has_consented;
+      store.set('has_consented', inputs.has_consented);
+    },
+
+    getUserInfo(Token, isAnon) {
+      const token = auth.getToken() || Token;
+      console.log('is anonymous', isAnon, token);
       const self = this;
 
       // TODO: CHANGE THIS TO YOUR SERVER
@@ -243,10 +259,9 @@ export default {
 
       axios.get(url).then((resp) => {
         self.isAuthenticated = true;
-
         // TODO: do stuff here, like setting user info variables
-        self.setUserInfo(resp);
-      }).catch(() => {
+        self.setUserInfo(resp, isAnon);
+      }).catch((e) => {
         self.logout();
       });
     },
@@ -255,15 +270,21 @@ export default {
       this.task = task;
     },
 
-    setUserInfo(resp) {
+    setUserInfo(resp, isAnon) {
       let data = resp.data;
       if (data._items.length === 0) {
         this.isAuthenticated = false;
-        return;
+        const e = {};
+        e.msg = 'ERROR';
+        throw e;
       }
       data = data._items[0];
       // console.log('setting user info', data)
-      this.isAuthenticated = true;
+      if (!isAnon) {
+        this.isAuthenticated = true;
+        this.login.loginType = 'github';
+        this.login.token = auth.getToken();
+      }
       this.login.ave_score = data.ave_score;
       this.login.consent = data.has_consented;
       this.login.n_subs = data.n_subs;
@@ -274,12 +295,24 @@ export default {
       this.login.avatar = data.avatar;
       this.login.github_id = data.id;
       this.login.username = data.username;
-      this.login.token = auth.getToken();
     },
 
     logout() {
       auth.logout();
       this.isAuthenticated = false;
+      this.login.loginType = 'anon';
+      this.anonymousLogin();
+    },
+
+    anonymousLogin() {
+      console.log('logging out');
+      axios.get(config.anonymous_url).then((resp) => {
+        console.log(resp);
+        this.login.token = resp.data.token;
+        this.getUserInfo(this.login.token, true);
+      }).catch((e) => {
+        console.log(e);
+      })
     },
 
   },
@@ -309,7 +342,52 @@ export default {
   @import "./custom-bootstrap.scss";
   @import "../node_modules/bootstrap/scss/bootstrap.scss";
 
-</style>
+
+  .missed {
+    cursor: pointer;
+    width: 45px;
+    height: 45px;
+    margin-right: 5px;
+    background-color: black;
+    border-color: $red;
+    border-style: solid;
+    border-radius: 10px;
+  }
+
+  .missed.view {
+    background-color: $red;
+  }
+
+  .incorrect {
+    cursor: pointer;
+    width: 45px;
+    height: 45px;
+    margin-right: 5px;
+    background-color: black;
+    border-color: $light-blue;
+    border-style: solid;
+    border-radius: 10px;
+  }
+
+  .incorrect.view {
+    background-color: $light-blue;
+  }
+
+  .correct {
+    cursor: pointer;
+    width: 45px;
+    height: 45px;
+    margin-right: 5px;
+    background-color: black;
+    border-color: $brand-warning;
+    border-style: solid;
+    border-radius: 10px;
+  }
+
+  .correct.view {
+    background-color: $brand-warning;
+  }
+  </style>
 
 <style>
   #app {
@@ -342,13 +420,13 @@ export default {
     z-index: 9;
   }
 
-  .footer{
+  /*.footer{
     background-color: black;
     color:white;
   }
 
   .footer a {
     color: white;
-  }
+  }*/
 
 </style>

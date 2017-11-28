@@ -10,7 +10,12 @@
                   <p class="card-text">
                       {{t.text}}
                   </p>
-                  <router-link :to="{ name: 'Play', params: {task: t.task} }"
+                  <router-link v-if="login.consent" :to="{ name: 'Play', params: {task: t.task} }"
+                  :class="{'btn btn-primary': t.task == task, 'btn btn-secondary': t.task != task}"
+                  >
+                      Play
+                  </router-link>
+                  <router-link v-else :to="{ name: 'Consent' }"
                   :class="{'btn btn-primary': t.task == task, 'btn btn-secondary': t.task != task}"
                   >
                       Play
@@ -51,7 +56,7 @@
     methods: {
 
     },
-    props: ['task', 'all_tasks'],
+    props: ['task', 'all_tasks', 'login'],
   };
 </script>
 

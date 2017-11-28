@@ -101,7 +101,10 @@
             </strong>
               {{step.description}}
               <hr>
-              <b-button variant="primary" :to="'/play/'+this.task">
+              <b-button v-if="login.consent" variant="primary" :to="'/play/'+this.task">
+                Start Playing
+              </b-button>
+              <b-button v-else variant="primary" :to="'/consent/'">
                 Start Playing
               </b-button>
           </b-alert>
@@ -115,6 +118,7 @@
       :brightness="brightness" :contrast="contrast"
       v-on:draw="doMouseUp"
       v-on:fillSuccess="doDblClick"
+      :LUT="LUT"
       id="canvas-id"
       ></Paper>
 
@@ -326,50 +330,6 @@
     border-radius: 10px;
   }
 
-  .missed {
-    cursor: pointer;
-    width: 45px;
-    height: 45px;
-    margin-right: 5px;
-    background-color: black;
-    border-color: #FF595E;
-    border-style: solid;
-    border-radius: 10px;
-  }
-
-  .missed.view {
-    background-color: #FF595E;
-  }
-
-  .incorrect {
-    cursor: pointer;
-    width: 45px;
-    height: 45px;
-    margin-right: 5px;
-    background-color: black;
-    border-color: #87BCDE;
-    border-style: solid;
-    border-radius: 10px;
-  }
-
-  .incorrect.view {
-    background-color: #87BCDE;
-  }
-
-  .correct {
-    cursor: pointer;
-    width: 45px;
-    height: 45px;
-    margin-right: 5px;
-    background-color: black;
-    border-color: darkviolet;
-    border-style: solid;
-    border-radius: 10px;
-  }
-
-  .correct.view {
-    background-color: darkviolet;
-  }
 
   .roi {
     display: inline-flex;
@@ -394,6 +354,7 @@ import numeral from 'numeral';
 import Vue from 'vue';
 import config from '../config';
 import firework from '../lib/firework';
+import style from '../custom-bootstrap.scss';
 
 
 Vue.filter('formatNumber', value =>
@@ -407,16 +368,16 @@ export default {
     return {
       overlay: true,
       paperSrc: null,
-      brushSize: '1',
+      brushSize: 1,
       brushSizeOptions: [
-        { text: '1', value: '1' },
-        { text: '2', value: '2' },
-        { text: '3', value: '3' },
+        { text: '1', value: 1 },
+        { text: '2', value: 2 },
+        { text: '3', value: 3 },
       ],
-      brushColor: '1',
+      brushColor: 1,
       brushColorOptions: [
-        { text: 'Erase', value: '0' },
-        { text: 'Paint', value: '1' },
+        { text: 'Erase', value: 0 },
+        { text: 'Paint', value: 1 },
       ],
       brightness: 50,
       contrast: 50,
@@ -446,7 +407,9 @@ export default {
         formatter: null,
         bgStyle: null,
         sliderStyle: null,
-        processStyle: null,
+        processStyle: {
+          'background-color': style.locals.primary,
+        },
         piecewiseActiveStyle: null,
         tooltipStyle: null,
         labelStyle: null,
@@ -469,6 +432,17 @@ export default {
       stepIdx: 0,
       showNext: false,
       n_hide: 0,
+      LUT: {
+        0: {
+          red: 0,
+          green: 0,
+          blue: 0,
+          alpha: 0,
+        },
+        1: style.locals.warning,
+        2: style.locals.success,
+        3: style.locals.danger,
+      },
     };
   },
   components: { Paper, vueSlider },
@@ -585,10 +559,10 @@ export default {
       chai.assert.isNotNull(this.task);
       chai.assert.isNotNull(config.image_url);
 
-      let url = `${config.image_url}?where={"task":"${this.task}"}`;
+      let url = `${config.image_url}?where={"task":"${this.task}", "mode": "train"}`;
       url = `${url}&max_results=1`;
-      url = `${url}&user_id=${this.login.id}&token=${this.login.token}`;
-      console.log("URL FOR GET IMAGES IS", url)
+      // url = `${url}&user_id=${this.login.id}&token=${this.login.token}`;
+      console.log('URL FOR GET IMAGES IS', url);
       return url;
     },
   },
@@ -676,8 +650,8 @@ export default {
         const data = resp.data;
         chai.assert.isNotEmpty(data._items);
         const pic = data._items[0].pic;
-        const LUT = this.$refs[paperRef].draw.LUT;
-        this.$refs[paperRef].roi.fillPixelLog(pic, LUT);
+        // const LUT = this.$refs[paperRef].draw.LUT;
+        this.$refs[paperRef].roi.fillPixelLog(pic, this.LUT);
         //this.showNext = true;
 
       }).catch((e) => {
@@ -726,10 +700,13 @@ export default {
       this.feedback.fp = true;
       this.feedback.fn = true;
       this.feedback.tp = true;
+      console.log('changing image');
       return axios.get(url, { params: { _: Math.random() } }).then((resp) => {
         chai.assert.lengthOf(resp.data._items, 1, 'the response from /image does not have exactly 1 item');
         const data = resp.data._items[0];
+        self.$refs.paper.clearImg();
         self.paperSrc = `data:image/jpeg;base64,${data.pic}`;
+        self.$refs.paper.initImg();
         self.mode = data.mode;
         self.image_id = data._id;
         self.user_agent = navigator.userAgent;

@@ -7,7 +7,8 @@ import style from '../custom-bootstrap.scss';
 // const ctx = canvasEl.getContext('2d');
 const numberOfParticules = 60;
 
-const colors = [style.locals.primary, style.locals.danger, style.locals.info, style.locals.warning]; // ['#FF595E', '#313E50', '#87BCDE', 'darkviolet'];
+const colors = [style.locals.primary, style.locals.danger, style.locals.info, style.locals.warning];
+// ['#FF595E', '#313E50', '#87BCDE', 'darkviolet'];
 
 function setCanvasSize() {
   const canvasEl = document.querySelector('.fireworks');

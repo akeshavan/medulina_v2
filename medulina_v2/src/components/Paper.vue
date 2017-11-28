@@ -454,21 +454,8 @@ export default {
         history: [
           [],
         ],
-        LUT: {
-          0: {
-            red: 0,
-            green: 0,
-            blue: 0,
-            alpha: 0,
-          },
-          1: 'darkviolet',
-          2: 'cyan',
-          3: 'gold',
-          4: 'plum',
-          5: 'goldenrod',
-        },
-
       },
+
     };
   },
   methods: {
@@ -505,12 +492,12 @@ export default {
       this[type].initPixelLog();
 
       const colors = {
-        fp: '#87BCDE',
-        tp: this.draw.LUT[1],
-        fn: '#FF595E',
+        fp: this.LUT[2], // '#87BCDE',
+        tp: this.LUT[1],
+        fn: this.LUT[3], // '#FF595E',
       };
       const LUT = {
-        0: this.draw.LUT[0],
+        0: this.LUT[0],
         1: colors[type],
       };
       this[type].fillPixelLog(data, LUT);
@@ -521,7 +508,7 @@ export default {
         this[type].onMouseDrag = function onMouseDrag(e) {
           if (e.event.buttons === 2 || self.touch.mode) {
             // right click and drag
-            console.log('mousedrag?')
+            console.log('mousedrag?');
             self.doPan(e);
           }
         };
@@ -638,14 +625,14 @@ export default {
         if (initPop) {
           const self = this;
           values.forEach((val) => {
-            roi.setPixelLog(val.x, val.y, self.draw.LUT[val.prev], val.prev);
+            roi.setPixelLog(val.x, val.y, self.LUT[val.prev], val.prev);
           });
         } else {
           console.log('reverting w/ no color');
           const self = this;
           values.forEach((val) => {
             if (isNumeric(val.prev)) {
-              roi.setPixelLogNoColor(val.x, val.y, self.draw.LUT[val.prev], val.prev);
+              roi.setPixelLogNoColor(val.x, val.y, self.LUT[val.prev], val.prev);
             } else {
               console.log(val.prev);
             }
@@ -665,13 +652,13 @@ export default {
       this.draw_addHistory(local.x, local.y,
         me.pixelLog[local.x][local.y],
         paintVal);
-      me.setPixelLog(local.x, local.y, this.draw.LUT[paintVal], paintVal);
+      me.setPixelLog(local.x, local.y, this.LUT[paintVal], paintVal);
       // console.log("draw.last is", draw.last)
       if (this.draw.last != null) {
         this.draw_line(local.x,
           local.y,
           this.draw.last.x,
-          this.draw.last.y, this.draw.LUT[paintVal], me, paintVal);
+          this.draw.last.y, this.LUT[paintVal], me, paintVal);
       }
 
       if (paintSize > 1) {
@@ -687,14 +674,14 @@ export default {
         self.draw_addHistory(local.x + val.x, local.y + val.y,
           me.pixelLog[local.x + val.x][local.y + val.y],
           paintVal);
-        me.setPixelLog(local.x + val.x, local.y + val.y, self.draw.LUT[paintVal], paintVal);
+        me.setPixelLog(local.x + val.x, local.y + val.y, self.LUT[paintVal], paintVal);
 
         if (self.draw.last != null) {
           self.draw_line(local.x + val.x,
             local.y + val.y,
             self.draw.last.x + val.x,
             self.draw.last.y + val.y,
-            self.draw.LUT[paintVal], me, paintVal);
+            self.LUT[paintVal], me, paintVal);
         }
       });
     },
@@ -741,10 +728,10 @@ export default {
         const nei = neighboors(y);
         while (x < (roi.width - 1) && roi.pixelLog[x][y] === targetVal) {
           this.draw_addHistory(x, y, roi.pixelLog[x][y], replacementVal);
-          roi.setPixelLogNoColor(x, y, this.draw.LUT[replacementVal], replacementVal);
+          roi.setPixelLogNoColor(x, y, this.LUT[replacementVal], replacementVal);
           numFill += 1;
           if (numFill > 20000) {
-            console.log('BREAKING')
+            console.info('BREAKING');
             queue = [];
             this.fillErrorStart();
             break;
@@ -765,10 +752,9 @@ export default {
       console.log(numFill);
       if (numFill < 20000) {
         roi.fillPixelLogFlat(this.draw.history[this.draw.history.length - 1],
-          replacementVal, this.draw.LUT);
+          replacementVal, this.LUT);
         this.$emit('fillSuccess');
       } else {
-
         console.log('starting revert', numFill, this.draw.history);
         // ui.startProgress()
         if (this.draw.history.length === 1) {
@@ -829,6 +815,21 @@ export default {
       }
     },
 
+    clearImg() {
+      // console.log("paper source changed")
+      this.scope.paper.project.clear();
+      // console.log(paper.projects)
+      this.draw.history = [
+        [],
+      ];
+      this.zoomFactor = 1;
+
+      this.view.setZoom(1);
+      this.panFactor = {
+        x: 0,
+        y: 0,
+      };
+    },
 
     initImg() {
       this.scope.activate();
@@ -863,19 +864,7 @@ export default {
 
   watch: {
     paperSrc() {
-      // console.log("paper source changed")
-      this.scope.paper.project.clear();
-      // console.log(paper.projects)
-      this.draw.history = [
-        [],
-      ];
-      this.zoomFactor = 1;
-
-      this.view.setZoom(1);
-      this.panFactor = {
-        x: 0,
-        y: 0,
-      };
+      this.clearImg();
       this.initImg();
     },
     brightness() {
@@ -885,9 +874,61 @@ export default {
       this.brightcont();
     },
   },
-  props: ['paperSrc', 'fillErrorStart', 'fillErrorEnd',
-    'paintSize', 'paintVal', 'brightness',
-    'contrast', 'id', 'mouseUp'],
+  props: {
+    paperSrc: {
+      type: String,
+      default: null,
+    },
+    fillErrorStart: {
+      type: Function,
+      default() {
+        console.log('error on fill');
+      },
+    },
+    fillErrorEnd: {
+      type: Function,
+      default() {
+        console.log('end error on fill');
+      },
+    },
+    paintSize: {
+      type: Number,
+      default: 1,
+    },
+    paintVal: {
+      type: Number,
+      default: 1,
+    },
+    brightness: {
+      type: Number,
+      default: 50,
+    },
+    contrast: {
+      type: Number,
+      default: 50,
+    },
+    id: {
+      type: String,
+      default: 'canvas-id',
+    },
+    LUT: {
+      default: {
+        0: {
+          red: 0,
+          green: 0,
+          blue: 0,
+          alpha: 0,
+        },
+        1: 'darkviolet',
+        2: '#87BCDE',
+        3: '#FF595E',
+      },
+    },
+  },
+
+  // ['paperSrc', 'fillErrorStart', 'fillErrorEnd',
+  // 'paintSize', 'paintVal', 'brightness',
+  // 'contrast', 'id', 'mouseUp'],
 
   beforeDestroy: function beforeDestroy(to, from, next) {
     console.log('destroying', this.id);

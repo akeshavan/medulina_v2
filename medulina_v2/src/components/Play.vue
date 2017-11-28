@@ -1,11 +1,20 @@
 <template>
   <div class="play" ref="play">
-    <div v-if="isAuthenticated" class="isAuth">
+    <div v-if="isAuthenticated && login.consent" class="isAuth">
       <b-alert :show="fillErr" class="mb-0"
       variant="danger" :dismissible="showDismiss"
       v-on:dismissed="fillErr=false;"
       >
         You are filling too much. Remember to close your loops.
+      </b-alert>
+
+      <b-alert :show="login.loginType == 'anon'" class="mb-0"
+      variant="danger"
+      >
+        Your progress will not be saved! Please
+        <b-link @click="do_authenticate()"> Log In </b-link>
+        to save your scores!
+
       </b-alert>
 
 
@@ -14,7 +23,7 @@
       :paint-size="brushSize"
       :paint-val="brushColor" ref="paper"
       :brightness="brightness" :contrast="contrast"
-      id="canvas-id"
+      id="canvas-id" :LUT="LUT"
       ></Paper>
 
       <canvas class="fireworks" resize :hidden="!doFirework"></canvas>
@@ -45,14 +54,6 @@
           </div>
 
       </div>
-
-      <!-- Modal Component for fill error -->
-      <b-modal id="fillErr" ref="fillErr" title="Fill Error" ok-only header-bg-variant="info"
-           header-text-variant="light">
-        <p clas="my-4">You are filling too much. </p>
-        <p clas="my-4"> <strong> Close your loops! </strong> </p>
-      </b-modal>
-
 
 
       <b-collapse class="container-fluid menuOpts" id="collapse1" @shown="testShown">
@@ -104,7 +105,16 @@
       </b-collapse>
 
     </div>
-    <b-navbar  toggleable="md" type="dark" variant="info"
+    <div v-else>
+      <h1>
+        Error!
+      </h1>
+      <p class="lead muted">
+        Please <b-link @click="do_authenticate()"> Log In </b-link>
+        or sign our <b-link to="/consent"> Research Consent Form </b-link> to continue.
+      </p>
+    </div>
+    <b-navbar v-if="isAuthenticated && login.consent" toggleable="md" type="dark" variant="info"
       class="navbar-fixed-bottom" id="bottonNav"
       style="position: fixed !important; bottom: 0; width: 100%;">
 
@@ -197,50 +207,7 @@
     border-radius: 10px;
   }
 
-  .missed {
-    cursor: pointer;
-    width: 45px;
-    height: 45px;
-    margin-right: 5px;
-    background-color: black;
-    border-color: #FF595E;
-    border-style: solid;
-    border-radius: 10px;
-  }
 
-  .missed.view {
-    background-color: #FF595E;
-  }
-
-  .incorrect {
-    cursor: pointer;
-    width: 45px;
-    height: 45px;
-    margin-right: 5px;
-    background-color: black;
-    border-color: #87BCDE;
-    border-style: solid;
-    border-radius: 10px;
-  }
-
-  .incorrect.view {
-    background-color: #87BCDE;
-  }
-
-  .correct {
-    cursor: pointer;
-    width: 45px;
-    height: 45px;
-    margin-right: 5px;
-    background-color: black;
-    border-color: darkviolet;
-    border-style: solid;
-    border-radius: 10px;
-  }
-
-  .correct.view {
-    background-color: darkviolet;
-  }
 
   .roi {
     display: inline-flex;
@@ -255,6 +222,8 @@
 
 </style>
 
+
+
 <script>
 /* eslint no-underscore-dangle: ["error", { "allow": ["_items", "_meta", "_links", "_id"] }] */
 
@@ -266,6 +235,7 @@ import numeral from 'numeral';
 import Vue from 'vue';
 import config from '../config';
 import firework from '../lib/firework';
+import Consent from './Consent';
 
 import style from '../custom-bootstrap.scss';
 
@@ -281,16 +251,16 @@ export default {
     return {
       overlay: true,
       paperSrc: null,
-      brushSize: '1',
+      brushSize: 1,
       brushSizeOptions: [
-        { text: '1', value: '1' },
-        { text: '2', value: '2' },
-        { text: '3', value: '3' },
+        { text: '1', value: 1 },
+        { text: '2', value: 2 },
+        { text: '3', value: 3 },
       ],
-      brushColor: '1',
+      brushColor: 1,
       brushColorOptions: [
-        { text: 'Erase', value: '0' },
-        { text: 'Paint', value: '1' },
+        { text: 'Erase', value: 0 },
+        { text: 'Paint', value: 1 },
       ],
       brightness: 50,
       contrast: 50,
@@ -344,13 +314,24 @@ export default {
       doFirework: false,
       fillErr: false,
       showDismiss: false,
+      LUT: {
+        0: {
+          red: 0,
+          green: 0,
+          blue: 0,
+          alpha: 0,
+        },
+        1: style.locals.warning,
+        2: style.locals.success,
+        3: style.locals.danger,
+      },
     };
   },
-  components: { Paper, vueSlider },
+  components: { Paper, vueSlider, Consent },
 
   computed: {
     image_url() {
-      chai.assert.isNotNull(this.login.id);
+      chai.assert.isNotNull(this.login.id, 'user needs an id!');
       chai.assert.isNotNull(this.login.token);
       chai.assert.isNotNull(this.task);
       chai.assert.isNotNull(config.image_url);
@@ -381,7 +362,7 @@ export default {
   methods: {
     fillErrorStart() {
       // console.log("starting to revert...", this.$refs.fillErr.show())
-      //this.$refs.fillErr.show();
+      // this.$refs.fillErr.show();
       console.log('starting the fill error thing');
       this.fillErr = true;
     },
@@ -392,7 +373,7 @@ export default {
     },
 
     fillErrorEnd() {
-      //this.fillErr = false;
+      // this.fillErr = false;
       this.showDismiss = true;
     },
 
@@ -418,6 +399,10 @@ export default {
       this.feedback[roi] = !this.feedback[roi];
     },
 
+    do_authenticate() {
+      this.$emit('needs_authentication');
+    },
+
     changeImg() {
       this.$emit('change_status', null);
       const self = this;
@@ -437,6 +422,8 @@ export default {
         console.log(data);
         this.$emit('change_status', 'Submit');
         this.showLegend = false;
+      }).catch((e) => {
+        console.log('error', e);
       });
     },
 
@@ -501,17 +488,17 @@ export default {
 
   beforeRouteLeave(from, to, next) {
     console.log('leaving', this.id);
-    //document.body.removeEventListener('touchmove', stopBounce);
-    //this.$refs.paper.removeEvents();
+    // document.body.removeEventListener('touchmove', stopBounce);
+    // this.$refs.paper.removeEvents();
     next();
   },
 
   beforeRouteEnter(from, to, next) {
     console.log('entering');
-    //document.body.addEventListener('touchmove', stopBounce);
+    // document.body.addEventListener('touchmove', stopBounce);
     next((vm) => {
-      //vm.$refs.paper.onresize();
-      console.log('resized on enter');
+      // vm.$refs.paper.onresize();
+      console.log('resized on enter', vm);
     });
   },
 

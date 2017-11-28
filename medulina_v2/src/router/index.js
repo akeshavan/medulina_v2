@@ -7,6 +7,7 @@ import Tutorial from '@/components/Tutorial';
 import Leaderboard from '@/components/Leaderboard';
 import Profile from '@/components/Profile';
 import About from '@/components/About';
+import Consent from '@/components/Consent';
 // import 'bootstrap/dist/css/bootstrap.css';
 // import 'bootstrap-vue/dist/bootstrap-vue.css';
 
@@ -49,6 +50,12 @@ export default new Router({
       name: 'Profile',
       props: true,
       component: Profile,
+    },
+    {
+      path: '/consent',
+      name: 'Consent',
+      props: true,
+      component: Consent,
     },
   ],
 });
