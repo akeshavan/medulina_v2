@@ -2,7 +2,9 @@
   <div id="leaderboard">
     <b-container class="mt-5">
       <div class="jumbotron">
-        <h1><img src="../assets/noun_155903_cc.svg" style="width:2em;"/> {{taskInfo.name}} </h1>
+        <h1>
+          <img src="../assets/noun_155903_cc.svg" style="width:2em;"/>
+           {{taskInfo.name}} </h1>
         <p class="lead muted">
           Leaderboard
         </p>
