@@ -108,7 +108,7 @@
                 <br>
                 <div class="roi">
                     <div id="tp"
-                    v-bind:class="{'correct': !feedback.tp, 'correct view': feedback.tp}"
+                    v-bind:class="{'correct': !feedback.tp, 'correct view grad': feedback.tp}"
                     v-on:click="toggle('tp')"></div>
                     <span style="line-height:50px;">Aggregate</span>
                 </div>
@@ -175,6 +175,14 @@
   display: inline-flex;
   float: left;
   width: unset;
+}
+
+.correct.view.grad{
+  background: $brand-warning; /* For browsers that do not support gradients */
+  background: -webkit-radial-gradient($brand-warning, white); /* Safari 5.1 to 6.0 */
+  background: -o-radial-gradient($brand-warning, white); /* For Opera 11.6 to 12.0 */
+  background: -moz-radial-gradient($brand-warning, white); /* For Firefox 3.6 to 15 */
+  background: radial-gradient($brand-warning, white); /* Standard syntax */
 }
 
 .profile {
@@ -342,7 +350,8 @@ export default {
   },
   methods: {
     toggle(roi) {
-
+      this.$refs.paper[roi].visible = !this.$refs.paper[roi].visible;
+      this.feedback[roi] = !this.feedback[roi];
     },
 
     fetchData() {
@@ -366,6 +375,9 @@ export default {
       const self = this;
       const userPic = d.d.pic;
       let truthPic = {};
+      this.feedback.fp = 1;
+      this.feedback.fn = 1;
+      this.feedback.tp = 1;
 
       axios.get(`${config.image_url}${d.d.image_id}`).then((resp) => {
         self.paperSrc = `data:image/jpeg;base64,${resp.data.pic}`;
@@ -385,8 +397,12 @@ export default {
             0: this.$refs.paper.LUT[0],
           };
           const maxVote = resp.data._items[0].nattempts;
+          const colorscale = d3.scaleLinear()
+            .domain([0, 1])
+            .range(['white', style.locals.warning])
+            .interpolate(d3.interpolateLab);
           for (let i = 1; i < maxVote + 1; i += 1) {
-            LUT[i] = d3.interpolateCool(i / maxVote);
+            LUT[i] = colorscale(i / maxVote);
           }
           self.$refs.paper.add_roi(resp.data.mask_sum, 'tp', 1, LUT);
         });
