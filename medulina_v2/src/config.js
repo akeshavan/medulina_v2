@@ -9,7 +9,7 @@ let authUrl = '';
 
 switch (host) {
   case 'test.medulina.com': {
-    apiHome = 'https://testapi.medulina.com/';
+    apiHome = 'https://testapi.medulina.com';
     REDIRECT = 'test.medulina.com';
     clientId = '7a33c7349ef2968b7480';
     authUrl = `${apiHome}/api/authenticate/test/github/`;
