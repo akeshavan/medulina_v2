@@ -43,4 +43,5 @@ export default {
   // also no http: or https:// in the redirect
   anonymous_url: `${apiHome}/api/anonymous`, // https://api.medulina.com/api/anonymous',
   consent_url: `${apiHome}/api/consent`,
+  apiHome,
 };

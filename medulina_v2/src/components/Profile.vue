@@ -245,6 +245,7 @@ import config from '../config';
 import chai from 'chai';
 import style from '../custom-bootstrap.scss';
 
+const d3 = require('d3');
 
 Vue.filter('formatNumber', value => numeral(value).format('0.0[0]')); // displaying other groupings/separators is possible, look at the docs
 
@@ -316,21 +317,33 @@ export default {
       const self = this;
       const userPic = d.d.pic;
       let truthPic = {};
-      console.log('d is', d);
-      axios.get(`${config.image_url}${d.d.image_id}`).then((resp) => {
-        console.log('resp', resp);
-        self.paperSrc = `data:image/jpeg;base64,${resp.data.pic}`;
 
-        console.log('set paper source', resp.data);
+      axios.get(`${config.image_url}${d.d.image_id}`).then((resp) => {
+        self.paperSrc = `data:image/jpeg;base64,${resp.data.pic}`;
+      }).then(() => {
         axios.get(this.truthUrl).then((res) => {
           console.log('got truth mask for selected point', res);
           truthPic = res.data._items[0].pic;
-          self.$refs.paper.add_roi(truthPic, 'fn');
-          self.$refs.paper.add_roi(userPic, 'fp', 1);
+          self.$refs.paper.add_roi(userPic, 'fp', 0);
+          self.$refs.paper.add_roi(truthPic, 'fn', 1);
+        });
+      }).then(() => {
+        const agg = `${config.apiHome}/api/v1/maskagg?aggregate={"$image_search":"${this.selectedMask.image_id}"}`;
+        console.log('agg URL is', agg);
+        axios.get(agg).then((resp) => {
+          console.log('resp.data ag', resp.data);
+          const LUT = {
+            0: this.$refs.paper.LUT[0],
+          };
+          const maxVote = resp.data._items[0].nattempts;
+          for (let i = 1; i < maxVote + 1; i += 1) {
+            LUT[i] = d3.interpolateCool(i / maxVote);
+          }
+          self.$refs.paper.add_roi(resp.data.mask_sum, 'tp', 1, LUT);
         });
       })
       .catch((e) => {
-
+        console.log('displayImg error', e);
       });
 
       console.log('data clicked is', d);

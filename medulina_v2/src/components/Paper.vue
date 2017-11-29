@@ -482,7 +482,7 @@ export default {
       this.view.translate(this.panFactor.x, this.panFactor.y);
     },
 
-    add_roi(data, type, doDrag) {
+    add_roi(data, type, doDrag, lut) {
       chai.assert.oneOf(type, ['fp', 'tp', 'fn']);
       this[type] = new paper.Raster({});
       this[type].setSize(this.base.size);
@@ -496,10 +496,7 @@ export default {
         tp: this.LUT[1],
         fn: this.LUT[3], // '#FF595E',
       };
-      const LUT = {
-        0: this.LUT[0],
-        1: colors[type],
-      };
+      const LUT = lut || { 0: this.LUT[0], 1: colors[type] };
       this[type].fillPixelLog(data, LUT);
       this[type].fitBounds(this.base.bounds);
       const self = this;
@@ -527,21 +524,26 @@ export default {
       // allRasters.map(function(r){r.fitBounds(view.bounds)})
       // console.log("resizing")
       console.log('resizing', this.id);
-      if (this.base && this.roi) {
+      if (this.base) {
         this.view.setZoom(1);
         this.base.fitBounds(this.view.bounds);
-        this.roi.fitBounds(this.view.bounds);
         this.zoomFactor = 1;
       }
 
-      try {
-        this.fp.fitBounds(this.view.bounds);
+      if (this.roi) {
+        this.roi.fitBounds(this.view.bounds);
+      }
+
+      if (this.tp) {
         this.tp.fitBounds(this.view.bounds);
+      }
+
+      if (this.fn) {
         this.fn.fitBounds(this.view.bounds);
-      } catch (e) {
-        // empty
-      } finally {
-        // empty
+      }
+
+      if (this.fp) {
+        this.fp.fitBounds(this.view.bounds);
       }
     },
 
