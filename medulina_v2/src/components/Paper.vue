@@ -505,7 +505,7 @@ export default {
         this[type].onMouseDrag = function onMouseDrag(e) {
           if (e.event.buttons === 2 || self.touch.mode) {
             // right click and drag
-            console.log('mousedrag?');
+
             self.doPan(e);
           }
         };
@@ -523,7 +523,7 @@ export default {
 
       // allRasters.map(function(r){r.fitBounds(view.bounds)})
       // console.log("resizing")
-      console.log('resizing', this.id);
+      //console.log('resizing', this.id);
       if (this.base) {
         this.view.setZoom(1);
         this.base.fitBounds(this.view.bounds);

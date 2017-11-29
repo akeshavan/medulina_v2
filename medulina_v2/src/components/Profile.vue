@@ -84,16 +84,36 @@
               >
             </Scatter>
 
-            <!--<div style="text-align: center;">
-              <h3 v-if="hover_idx != null && user_data[hover_idx]">
-                Score: {{user_data[hover_idx].score | formatNumber}}
-              </h3>
-            </div>-->
-
             <br>
 
 
           <div id="imageLoad">
+            <div class="legend2 local" v-if="this.paperSrc">
+
+                <div class="roi">
+                    <div id="fn"
+                    v-bind:class="{'missed': !feedback.fn, 'missed view': feedback.fn}"
+                    v-on:click="toggle('fn')"></div>
+                    <span style="line-height:50px;">Truth</span>
+                </div>
+
+                <br>
+                <div class="roi">
+                    <div id="fp"
+                    v-bind:class="{'incorrect': !feedback.fp, 'incorrect view': feedback.fp}"
+                    v-on:click="toggle('fp')"></div>
+                    <span style="line-height:50px;">Your Answer</span>
+                </div>
+
+                <br>
+                <div class="roi">
+                    <div id="tp"
+                    v-bind:class="{'correct': !feedback.tp, 'correct view': feedback.tp}"
+                    v-on:click="toggle('tp')"></div>
+                    <span style="line-height:50px;">Aggregate</span>
+                </div>
+            </div>
+
             <Paper  :paper-src="paperSrc"
              ref="paper"
              id="canvas-id"
@@ -101,13 +121,6 @@
             ></Paper>
           </div>
           <br>
-          <!--<div>
-            <a v-if="hover_idx != null && user_data[hover_idx]"
-             class="btn btn-primary mx-auto d-block"
-             role="button"
-             v-bind:href="'/slices.html?image_id=' + user_data[hover_idx].image_id"
-             style="width:120px;">Slice Stats</a>
-          </div>-->
 
           <div id="test"></div>
           </main>
@@ -131,10 +144,37 @@
 @import "../custom-bootstrap.scss";
 //@import "../../node_modules/bootstrap/scss/bootstrap.scss";
 
-.imageLoad {
+.profile canvas {
+  display: block;
   width: 100%;
   height: 100%;
+  z-index: 0;
+  background-color: black;
+}
+
+
+.profile .legend2 {
+  z-index:8;
+  background:rgba(1,1,1,1);
+  position: absolute;
+  color:white;
+  display: block;
+  border-color: black;
+  border-style: solid;
+  border-radius: 10px;
+}
+
+.profile #imageLoad {
+  width: 100%;
+  height: auto;
   min-height: 200px;
+  position: relative;
+}
+
+.profile .legend2 .roi {
+  display: inline-flex;
+  float: left;
+  width: unset;
 }
 
 .profile {
@@ -151,7 +191,7 @@
  * Circle Styles
  */
 
-.circle {
+.profile .circle {
   position: relative;
   display: block;
   margin: 2em 0;
@@ -160,7 +200,7 @@
   text-align: center;
 }
 
-.circle:after {
+.profile .circle:after {
   display: block;
   padding-bottom: 100%;
   width: 100%;
@@ -171,7 +211,7 @@
 }
 
 
-.circle__inner {
+.profile .circle__inner {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -182,13 +222,13 @@
 
 }
 
-.circle__wrapper {
+.profile .circle__wrapper {
   display: table;
   width: 100%;
   height: 100%;
 }
 
-.circle__content {
+.profile .circle__content {
   display: table-cell;
   /*padding: 1em;*/
   color: white;
@@ -197,36 +237,36 @@
 }
 
 @media (min-width: 480px) {
-    .circle__content {
+    .profile .circle__content {
       font-size: 3em;
   }
 }
 
 @media (min-width: 576px) {
-    .circle__content {
+    .profile .circle__content {
       font-size: 2em;
   }
 }
 
 @media (min-width: 768px) {
-    .circle__content {
+    .profile .circle__content {
       font-size: 2.5em;
   }
 }
 
-.bright:after {
+.profile .bright:after {
   background-color: $brand-danger;
 }
 
-.purple:after{
+.profile .purple:after{
   background-color: $brand-primary;
 }
 
-.light:after{
+.profile .light:after{
   background-color: $brand-warning;
 }
 
-.dark:after{
+.profile .dark:after{
   background-color: $brand-info;
 }
 
@@ -275,6 +315,11 @@ export default {
         2: style.locals.success,
         3: style.locals.danger,
       },
+      feedback: {
+        fp: 1,
+        fn: 1,
+        tp: 1,
+      },
     };
   },
   components: { Scatter, Paper },
@@ -296,6 +341,10 @@ export default {
     },
   },
   methods: {
+    toggle(roi) {
+
+    },
+
     fetchData() {
       console.log('trainingURL', this.trainingUrl);
       axios.get(this.trainingUrl).then((resp) => {

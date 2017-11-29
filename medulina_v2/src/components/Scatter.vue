@@ -22,6 +22,7 @@
 
   .dot {
     stroke: #313E50;
+    cursor: pointer;
   }
 
   .tooltip {
