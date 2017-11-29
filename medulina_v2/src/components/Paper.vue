@@ -864,6 +864,7 @@ export default {
 
   watch: {
     paperSrc() {
+      console.log('paper source changed');
       this.clearImg();
       this.initImg();
     },

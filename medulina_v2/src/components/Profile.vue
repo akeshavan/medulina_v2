@@ -80,6 +80,7 @@
               :onColor="onColor"
               :highlightColor="highlightColor"
               :axisLabels="axisLabels"
+              v-on:pointClick="displayImg"
               >
             </Scatter>
 
@@ -93,7 +94,11 @@
 
 
           <div id="imageLoad">
-            <canvas id="currentImg" class="mx-auto d-block" resize></canvas>
+            <Paper  :paper-src="paperSrc"
+             ref="paper"
+             id="canvas-id"
+             :LUT="LUT"
+            ></Paper>
           </div>
           <br>
           <!--<div>
@@ -125,6 +130,12 @@
 
 @import "../custom-bootstrap.scss";
 //@import "../../node_modules/bootstrap/scss/bootstrap.scss";
+
+.imageLoad {
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+}
 
 .profile {
   margin-top: 20px;
@@ -229,8 +240,11 @@ import Vue from 'vue';
 import numeral from 'numeral';
 import axios from 'axios';
 import Scatter from './Scatter';
+import Paper from './Paper';
 import config from '../config';
+import chai from 'chai';
 import style from '../custom-bootstrap.scss';
+
 
 Vue.filter('formatNumber', value => numeral(value).format('0.0[0]')); // displaying other groupings/separators is possible, look at the docs
 
@@ -247,9 +261,22 @@ export default {
       dotColor: style.locals.primary,
       highlightColor: style.locals.warning,
       onColor: style.locals.danger,
+      selectedMask: {},
+      paperSrc: '',
+      LUT: {
+        0: {
+          red: 0,
+          green: 0,
+          blue: 0,
+          alpha: 0,
+        },
+        1: style.locals.warning,
+        2: style.locals.success,
+        3: style.locals.danger,
+      },
     };
   },
-  components: { Scatter },
+  components: { Scatter, Paper },
   computed: {
     taskInfo() {
       let taskInfo = null;
@@ -262,6 +289,9 @@ export default {
     },
     trainingUrl() {
       return `${config.edit_url}?where={"mode":"try","task":"${this.task}","user_id":"${this.login.id}"}&max_results=100&sort=-_created`;
+    },
+    truthUrl() {
+      return `${config.edit_url}?where={"mode":"truth","image_id":"${this.selectedMask.image_id}"}`
     },
   },
   methods: {
@@ -279,6 +309,31 @@ export default {
       }).catch((e) => {
         console.log('error is', e);
       });
+    },
+
+    displayImg(d) {
+      this.selectedMask = d.d;
+      const self = this;
+      const userPic = d.d.pic;
+      let truthPic = {};
+      console.log('d is', d);
+      axios.get(`${config.image_url}${d.d.image_id}`).then((resp) => {
+        console.log('resp', resp);
+        self.paperSrc = `data:image/jpeg;base64,${resp.data.pic}`;
+
+        console.log('set paper source', resp.data);
+        axios.get(this.truthUrl).then((res) => {
+          console.log('got truth mask for selected point', res);
+          truthPic = res.data._items[0].pic;
+          self.$refs.paper.add_roi(truthPic, 'fn');
+          self.$refs.paper.add_roi(userPic, 'fp', 1);
+        });
+      })
+      .catch((e) => {
+
+      });
+
+      console.log('data clicked is', d);
     },
   },
   mounted() {

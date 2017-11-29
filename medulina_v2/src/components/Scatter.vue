@@ -88,9 +88,22 @@ export default {
 
   methods: {
 
+    onClick(d, i) {
+      this.currentClicked = d;
+      const self = this;
+      this.prep.svg.selectAll('.dot').style('fill', (dat) => {
+        if (dat === d) {
+          return self.onColor;
+        }
+        return self.dotColor;
+      });
+      this.$emit('pointClick', { d, i });
+    },
+
     onresize() {
       console.log('resize', this.$refs[this.id].clientWidth);
-      const width = this.$refs[this.id].clientWidth - this.prep.margin.left - this.prep.margin.right;
+      const width = this.$refs[this.id].clientWidth
+      - this.prep.margin.left - this.prep.margin.right;
       const height = this.$refs[this.id].clientHeight - this.prep.margin.top - this.prep.margin.bottom;
 
       const svg = d3.select(`#${this.id}`)
@@ -176,8 +189,8 @@ export default {
         })
         .on('mouseout', () => {
           self.prep.svg.selectAll('.dot').style('fill', self.highlighterOff());
-        });
-        // TODO: .on('click', onClick);
+        })
+        .on('click', this.onClick);
 
 
       // remove dots
