@@ -267,6 +267,7 @@ export default {
     },
 
     setTask(task) {
+      console.log('setting task', task);
       this.task = task;
     },
 

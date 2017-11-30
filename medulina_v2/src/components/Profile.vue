@@ -498,7 +498,7 @@ export default {
   watch: {
     task() {
       this.fetchTrainingData().then(this.fetchUserProjectData());
-    }
+    },
   },
 
   created() {

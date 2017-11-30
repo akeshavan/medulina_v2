@@ -4,7 +4,16 @@
       <div class="jumbotron">
         <h1>
           <img src="../assets/noun_155903_cc.svg" style="width:2em;"/>
-           {{taskInfo.name}} </h1>
+
+          <b-dropdown id="ddown1" :text="taskInfo.name" class="m-md-2" size="lg" variant="light">
+            <b-dropdown-item v-for="task in all_tasks"
+              v-if="task.name != taskInfo.name"
+              :to="'/leaderboard/'+task.task">
+              {{task.name}}
+            </b-dropdown-item>
+          </b-dropdown>
+
+        </h1>
         <p class="lead muted">
           Leaderboard
         </p>
@@ -15,11 +24,13 @@
         <br>
       </b-row>
       <b-row>
-        <b-table striped hover :items="allUsers" :fields="fields">
-          <template slot="username" scope="row">
-            <b-link :to="'/profile/'+row.item.user_project_id.split('__')[0]">{{row.item.username}}</b-link>
-          </template>
-        </b-table>
+        <transition name="fade" appear>
+          <b-table striped hover :items="allUsers" :fields="fields" :key="task">
+            <template slot="username" scope="row">
+              <b-link :to="'/profile/'+row.item.user_project_id.split('__')[0]">{{row.item.username}}</b-link>
+            </template>
+          </b-table>
+        </transition>
 
       </b-row>
 
@@ -28,7 +39,12 @@
 </template>
 
 <style>
-
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0
+}
 </style>
 
 <script>
@@ -92,14 +108,19 @@ export default {
     },
   },
 
+  created() {
+    this.get_leaderboard();
+  },
+
   mounted() {
-    this.$emit('change_task', this.task);
+    // this.$emit('change_task', this.task);
     this.get_leaderboard();
   },
   props: ['task', 'login', 'isAuthenticated', 'all_tasks'],
   watch: {
     task() {
-
+      // console.log('task changed, getting leaderboard');
+      this.get_leaderboard();
     },
   },
 };
