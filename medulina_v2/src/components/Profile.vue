@@ -12,12 +12,32 @@
               <h1><img :src="user.avatar" class="rounded-circle img-thumbnail thumb">{{user.username}}</h1>
               <p class="lead muted" v-if="id==login.id">This is you</p>
 
+              <hr>
+
+              <h2>
+                Your
+                <b-dropdown id="ddown1" :text="taskInfo.name" class="m-md-2" size="lg" variant="light">
+                  <b-dropdown-item v-for="task in all_tasks"
+                    v-if="task.name != taskInfo.name"
+                    v-on:click="switchTask(task.task)">
+                    {{task.name}}
+                  </b-dropdown-item>
+
+
+                </b-dropdown>
+
+                Stats
+
+              </h2>
+
             <section class="row text-center placeholders pb-3" >
               <div class="col-6 col-sm-3 placeholder">
                 <div class="circle light">
                   <div class="circle__inner">
                     <div class="circle__wrapper">
-                      <div class="circle__content">{{user.ave_score | formatNumber}}</div>
+                      <transition name="fade" appear mode="out-in">
+                        <div class="circle__content" :key="user.ave_score">{{user.ave_score | formatNumber}}</div>
+                      </transition>
                     </div>
                   </div>
                 </div>
@@ -31,7 +51,9 @@
                 <div class="circle purple">
                   <div class="circle__inner">
                     <div class="circle__wrapper">
-                      <div class="circle__content">{{user.roll_ave_score | formatNumber}}</div>
+                      <transition name="fade" appear mode="out-in">
+                        <div class="circle__content" :key="user.roll_ave_score">{{user.roll_ave_score | formatNumber}}</div>
+                      </transition>
                     </div>
                   </div>
                 </div>
@@ -45,7 +67,9 @@
                 <div class="circle bright">
                   <div class="circle__inner">
                     <div class="circle__wrapper">
-                      <div class="circle__content">{{user.n_test | formatNumber}}</div>
+                      <transition name="fade" appear mode="out-in">
+                        <div class="circle__content" :key="user.n_test">{{user.n_test | formatNumber}}</div>
+                      </transition>
                     </div>
                   </div>
                 </div>
@@ -71,7 +95,10 @@
             </section>
 
             <hr>
-            <h2 class="pt-3">Training Scores: {{this.taskInfo.name}}</h2>
+            <h2 class="pt-3">Training Scores</h2>
+            <p class="lead muted">
+              Click on a point in the chart to view your painting
+            </p>
 
             <Scatter id="trainingScores"
               :data="data"
@@ -143,6 +170,13 @@
 
 @import "../custom-bootstrap.scss";
 //@import "../../node_modules/bootstrap/scss/bootstrap.scss";
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0
+}
 
 .profile canvas {
   display: block;
@@ -333,6 +367,15 @@ export default {
   },
   components: { Scatter, Paper },
   computed: {
+
+    userScoreUrl() {
+      let url = `?where={"task":"${this.task}","user_project_id":"${this.user._id}__${this.task}"}&sort=-n_test,-n_try`;
+      url = `${config.score_url}${url}`;
+      console.log('user score url is', url);
+      // 'score?where={"task":"' +task+ '", "username":{"$exists": true}}&sort=-n_test'
+      return url;
+    },
+
     taskInfo() {
       let taskInfo = null;
       this.all_tasks.forEach((val) => {
@@ -351,7 +394,7 @@ export default {
       return `${config.edit_url}?where={"mode":"try","task":"${this.task}","user_id":"${userId}"}&max_results=100&sort=-_created`;
     },
     truthUrl() {
-      return `${config.edit_url}?where={"mode":"truth","image_id":"${this.selectedMask.image_id}"}`
+      return `${config.edit_url}?where={"mode":"truth","image_id":"${this.selectedMask.image_id}"}`;
     },
   },
   methods: {
@@ -360,9 +403,34 @@ export default {
       this.feedback[roi] = !this.feedback[roi];
     },
 
-    fetchData() {
-      console.log('trainingURL', this.trainingUrl);
-      axios.get(this.trainingUrl).then((resp) => {
+    switchTask(task) {
+      this.$emit('change_task', task);
+    },
+
+    fetchUserProjectData() {
+      return axios.get(this.userScoreUrl, { _: Math.random() }).then((resp) => {
+        console.log('got user score data', resp);
+        const data = resp.data._items[0];
+        this.user.n_subs = data.n_subs;
+        this.user.n_test = data.n_test;
+        this.user.n_try = data.n_try;
+        this.user.roll_ave_score = data.roll_ave_score;
+        this.user.ave_score = data.ave_score;
+      });
+    },
+
+    fetchUserData() {
+      return axios.get(this.userUrl, { _: Math.random() }).then((resp) => {
+        console.log('got user data', resp);
+        this.user = resp.data;
+        // this.user.avatar = resp.data.avatar;
+        // this.user._id = resp.data._id;
+        // this.user.username = resp.data.username;
+      });
+    },
+
+    fetchTrainingData() {
+      return axios.get(this.trainingUrl, { _:Math.random() }).then((resp) => {
         console.log('response is', resp);
         const data = resp.data._items;
         data.forEach((v, i) => {
@@ -371,12 +439,13 @@ export default {
         this.data = data;
         console.log('fetch data is', data);
         this.$refs.plot.populate();
-      }).then(() => {
-        axios.get(this.userUrl).then((resp) => {
-          console.log('got user data', resp);
-          this.user = resp.data;
-        })
-      }).catch((e) => {
+      });
+    },
+
+    fetchData() {
+      console.log('trainingURL', this.trainingUrl);
+      this.fetchTrainingData().then(this.fetchUserData).then(this.fetchUserProjectData)
+      .catch((e) => {
         console.log('error is', e);
       });
     },
@@ -424,6 +493,12 @@ export default {
 
       console.log('data clicked is', d);
     },
+  },
+
+  watch: {
+    task() {
+      this.fetchTrainingData().then(this.fetchUserProjectData());
+    }
   },
 
   created() {
