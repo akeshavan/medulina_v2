@@ -15,7 +15,12 @@
         <br>
       </b-row>
       <b-row>
-        <b-table striped hover :items="allUsers" :fields="fields"></b-table>
+        <b-table striped hover :items="allUsers" :fields="fields">
+          <template slot="username" scope="row">
+            <b-link :to="'/profile/'+row.item.user_project_id.split('__')[0]">{{row.item.username}}</b-link>
+          </template>
+        </b-table>
+
       </b-row>
 
     </b-container>

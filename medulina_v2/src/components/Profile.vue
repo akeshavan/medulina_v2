@@ -9,15 +9,15 @@
         <div class="row">
           <main>
 
-              <h1><img :src="login.avatar" class="rounded-circle img-thumbnail thumb">{{login.username}}</h1>
-
+              <h1><img :src="user.avatar" class="rounded-circle img-thumbnail thumb">{{user.username}}</h1>
+              <p class="lead muted" v-if="id==login.id">This is you</p>
 
             <section class="row text-center placeholders pb-3" >
               <div class="col-6 col-sm-3 placeholder">
                 <div class="circle light">
                   <div class="circle__inner">
                     <div class="circle__wrapper">
-                      <div class="circle__content">{{login.ave_score | formatNumber}}</div>
+                      <div class="circle__content">{{user.ave_score | formatNumber}}</div>
                     </div>
                   </div>
                 </div>
@@ -31,7 +31,7 @@
                 <div class="circle purple">
                   <div class="circle__inner">
                     <div class="circle__wrapper">
-                      <div class="circle__content">{{login.roll_ave_score | formatNumber}}</div>
+                      <div class="circle__content">{{user.roll_ave_score | formatNumber}}</div>
                     </div>
                   </div>
                 </div>
@@ -45,7 +45,7 @@
                 <div class="circle bright">
                   <div class="circle__inner">
                     <div class="circle__wrapper">
-                      <div class="circle__content">{{login.n_test | formatNumber}}</div>
+                      <div class="circle__content">{{user.n_test | formatNumber}}</div>
                     </div>
                   </div>
                 </div>
@@ -303,6 +303,7 @@ export default {
   data() {
     return {
       data: [],
+      user: {},
       axisLabels: {
         y: 'score',
         x: 'idx',
@@ -341,8 +342,13 @@ export default {
       });
       return taskInfo;
     },
+    userUrl() {
+      const id = this.id || this.login.id;
+      return `${config.player_url}${id}`;
+    },
     trainingUrl() {
-      return `${config.edit_url}?where={"mode":"try","task":"${this.task}","user_id":"${this.login.id}"}&max_results=100&sort=-_created`;
+      const userId = this.id || this.login.id;
+      return `${config.edit_url}?where={"mode":"try","task":"${this.task}","user_id":"${userId}"}&max_results=100&sort=-_created`;
     },
     truthUrl() {
       return `${config.edit_url}?where={"mode":"truth","image_id":"${this.selectedMask.image_id}"}`
@@ -365,6 +371,11 @@ export default {
         this.data = data;
         console.log('fetch data is', data);
         this.$refs.plot.populate();
+      }).then(() => {
+        axios.get(this.userUrl).then((resp) => {
+          console.log('got user data', resp);
+          this.user = resp.data;
+        })
       }).catch((e) => {
         console.log('error is', e);
       });
@@ -414,10 +425,15 @@ export default {
       console.log('data clicked is', d);
     },
   },
+
+  created() {
+    this.fetchData();
+  },
+
   mounted() {
     this.fetchData();
   },
   // the parent component feeds these vars to this component
-  props: ['isAuthenticated', 'userInfo', 'login', 'task', 'all_tasks'],
+  props: ['isAuthenticated', 'userInfo', 'login', 'task', 'all_tasks', 'id'],
 };
 </script>

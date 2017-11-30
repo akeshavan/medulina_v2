@@ -46,7 +46,7 @@ export default new Router({
       component: Leaderboard,
     },
     {
-      path: '/profile',
+      path: '/profile/:id',
       name: 'Profile',
       props: true,
       component: Profile,

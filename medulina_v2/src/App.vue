@@ -25,7 +25,7 @@
             <template slot="button-content" >
               <em>{{login.username}}</em>
             </template>
-            <b-dropdown-item :to="{ name: 'Profile'}">Profile</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'Profile', params: {id: this.login.id}}">Profile</b-dropdown-item>
             <b-dropdown-item href="#" @click="logout()">Signout</b-dropdown-item>
           </b-nav-item-dropdown>
           <b-button v-else size="sm" class="my-2 my-sm-0"
