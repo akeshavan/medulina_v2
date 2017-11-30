@@ -8,14 +8,14 @@
       <b-container>
         <div class="row">
           <main>
-
-              <h1><img :src="user.avatar" class="rounded-circle img-thumbnail thumb">{{user.username}}</h1>
+            <transition name="fade" appear mode="out-in">
+              <h1 :key="user.username"><img :src="user.avatar" class="rounded-circle img-thumbnail thumb" :key="user.username">{{user.username}}</h1>
               <p class="lead muted" v-if="id==login.id">This is you</p>
-
+            </transition>
               <hr>
 
               <h2>
-                Your
+                <span v-if="id==login.id"> Your</span>
                 <b-dropdown id="ddown1" :text="taskInfo.name" class="m-md-2" size="lg" variant="light">
                   <b-dropdown-item v-for="task in all_tasks"
                     v-if="task.name != taskInfo.name"
@@ -115,31 +115,33 @@
 
 
           <div id="imageLoad">
-            <div class="legend2 local" v-if="this.paperSrc">
+            <transition name="fade" appear mode="out-in">
+              <div class="legend2 local" v-if="this.paperSrc">
 
-                <div class="roi">
-                    <div id="fn"
-                    v-bind:class="{'missed': !feedback.fn, 'missed view': feedback.fn}"
-                    v-on:click="toggle('fn')"></div>
-                    <span style="line-height:50px;">Truth</span>
-                </div>
+                  <div class="roi">
+                      <div id="fn"
+                      v-bind:class="{'missed': !feedback.fn, 'missed view': feedback.fn}"
+                      v-on:click="toggle('fn')"></div>
+                      <span style="line-height:50px;">Truth</span>
+                  </div>
 
-                <br>
-                <div class="roi">
-                    <div id="fp"
-                    v-bind:class="{'incorrect': !feedback.fp, 'incorrect view': feedback.fp}"
-                    v-on:click="toggle('fp')"></div>
-                    <span style="line-height:50px;">Your Answer</span>
-                </div>
+                  <br>
+                  <div class="roi">
+                      <div id="fp"
+                      v-bind:class="{'incorrect': !feedback.fp, 'incorrect view': feedback.fp}"
+                      v-on:click="toggle('fp')"></div>
+                      <span style="line-height:50px;">Your Answer</span>
+                  </div>
 
-                <br>
-                <div class="roi">
-                    <div id="tp"
-                    v-bind:class="{'correct': !feedback.tp, 'correct view grad': feedback.tp}"
-                    v-on:click="toggle('tp')"></div>
-                    <span style="line-height:50px;">Aggregate</span>
-                </div>
-            </div>
+                  <br>
+                  <div class="roi">
+                      <div id="tp"
+                      v-bind:class="{'correct': !feedback.tp, 'correct view grad': feedback.tp}"
+                      v-on:click="toggle('tp')"></div>
+                      <span style="line-height:50px;">Aggregate</span>
+                  </div>
+              </div>
+            </transition>
 
             <Paper  :paper-src="paperSrc"
              ref="paper"
@@ -498,6 +500,9 @@ export default {
   watch: {
     task() {
       this.fetchTrainingData().then(this.fetchUserProjectData());
+    },
+    $route() {
+      this.fetchData();
     },
   },
 

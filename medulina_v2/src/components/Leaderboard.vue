@@ -64,7 +64,7 @@ export default {
   },
   methods: {
     filterData(data) {
-      let i = 0;
+      let i = (this.page - 1)*25 + 1;
       const newData = [];
       data.forEach((val) => {
         const v = val;
@@ -92,7 +92,7 @@ export default {
 
   computed: {
     scoreUrl() {
-      let url = `?where={"task": "${this.task}"}&sort=-n_test,-n_try`;
+      let url = `?where={"task": "${this.task}"}&sort=-n_test,-n_try&page=${this.page}`;
       url = `${config.score_url}${url}`;
       // 'score?where={"task":"' +task+ '", "username":{"$exists": true}}&sort=-n_test'
       return url;
@@ -122,6 +122,9 @@ export default {
       // console.log('task changed, getting leaderboard');
       this.get_leaderboard();
     },
+    page() {
+      this.get_leaderboard();
+    }
   },
 };
 </script>
