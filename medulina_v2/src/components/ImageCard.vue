@@ -118,7 +118,7 @@ export default {
       });
     },
     fetchData() {
-      this.fetchAgg().then(this.fetchTruth);
+      // this.fetchAgg().then(this.fetchTruth);
     },
   },
   mounted() {

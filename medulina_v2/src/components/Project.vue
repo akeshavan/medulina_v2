@@ -9,12 +9,12 @@
         <b-row>
             <b-card-group deck>
 
-              <ImageCard
-              v-for="(image, index) in allImages"
-              :image="image" :id="`pic${index}`"
+              <ImageCard v-for="(image, index) in [1,2,3]"
+              :image="allImages[index]" :id="`pic${index}`"
               :ref="`pic${index}`"
               :key="`pic${index}`"
               ></ImageCard>
+
 
             </b-card-group>
         </b-row>
@@ -32,6 +32,7 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_items", "_meta", "_links", "_id"] }] */
 
 import axios from 'axios';
+import chai from 'chai';
 import config from '../config';
 import ImageCard from './ImageCard';
 import Paper from './Paper';
@@ -49,15 +50,22 @@ export default {
       axios.get(this.taskImagesUrl).then((resp) => {
         console.log('fetched data', resp.data);
         const data = resp.data._items;
-        data.forEach((val, idx) => {
-          data[idx].pic = `data:image/jpeg;base64,${val.pic}`;
-        });
+        //data.forEach((val, idx) => {
+        //  data[idx].pic = `data:image/jpeg;base64,${val.pic}`;
+        //});
+
+        for (let i = 0; i < data.length; i += 1) {
+          data[i].pic = `data:image/jpeg;base64,${data[i].pic}`;
+        }
+
         this.allImages = data;
       });
     },
   },
   computed: {
     taskImagesUrl() {
+      chai.assert.isNotNull(this.task);
+      chai.assert.isNotNull(config.image_url);
       return `${config.image_url}?where={"task":"${this.task}"}&max_results=3&sort=-_created`;
     },
     taskInfo() {
@@ -76,7 +84,7 @@ export default {
   components: { ImageCard, Paper },
   watch: {
     $route() {
-      this.fetchData();
+      //this.fetchData();
     },
   },
   props: ['task', 'all_tasks', 'login', 'isAuthenticated'],

@@ -1,18 +1,34 @@
 <template>
   <div id="tutorial">
+    <b-container>
+    <div class="card-deck" >
+      <div class="paperImg" v-for="(img, index) in [1,2,3,4,5,6]">
+      <!--<div class="paperImg" v-for="(img, index) in paperSrc">-->
+        <div class="card">
+          <Paper
+          :paper-src="paperSrc[index]"
+          :ref="`a${index}`"
+          :id="`b${index}`"
+          ></Paper>
+          <div class="card-body">
+            <h4 class="card-title">Title</h4>
+            <p class="card-text">hi</p>
 
-    <div class="paperImg" v-for="(idx, index) in [1,2]">
-      <Paper
-      :paper-src="paperSrc[index]"
+          </div>
+          <div class="card-footer">
+            <div>
+              <small class="text-muted">slice</small>
+            </div>
+          </div>
+        </div>
 
-      :ref="`a${index}`"
-      :id="`b${index}`"
-      ></Paper>
+
+      </div>
     </div>
 
 
 
-
+  </b-container>
   </div>
 </template>
 
@@ -37,6 +53,7 @@ export default {
       paperSrc1: null,
       paperSrc2: null,
       paperSrc: [],
+      nImgs: 6,
       imgs: [],
     };
   },
@@ -50,6 +67,13 @@ export default {
     this.setImages();
   },
   computed: {
+    imgArr() {
+      const d = [];
+      for (let i = 0; i < d; i += 1) {
+        d.push(i);
+      }
+      return d;
+    },
     image_url() {
       chai.assert.isNotNull(this.login.id);
       chai.assert.isNotNull(this.login.token);
@@ -57,8 +81,8 @@ export default {
       chai.assert.isNotNull(config.image_url);
 
       let url = `${config.image_url}?where={"task":"${this.task}"}`;
-      url = `${url}&max_results=2`;
-      //url = `${url}&user_id=${this.login.id}&token=${this.login.token}`;
+      url = `${url}&max_results=6`;
+      // url = `${url}&user_id=${this.login.id}&token=${this.login.token}`;
       // console.log("URL FOR GET IMAGES IS", url)
       return url;
     },
@@ -111,15 +135,15 @@ export default {
       });*/
 
       axios.get(url, { params: { _: Math.random() } }).then((resp) => {
-        //chai.assert.lengthOf(resp.data._items, 1,
-        //'the response from /image does not have exactly 1 item');
+        // chai.assert.lengthOf(resp.data._items, 1,
+        // 'the response from /image does not have exactly 1 item');
 
-        for (let i=0; i<resp.data._items.length; i += 1){
+        for (let i = 0; i < resp.data._items.length; i += 1) {
           const data = resp.data._items[i];
-          self.paperSrc.push(`data:image/jpeg;base64,${data.pic}`)
+          self.paperSrc.push(`data:image/jpeg;base64,${data.pic}`);
         }
 
-        /*const data = resp.data._items[0];
+        /* const data = resp.data._items[0];
         self.imgs.push(data);
         self.paperSrc1 = `data:image/jpeg;base64,${data.pic}`;
         self.paperSrc.push(self.paperSrc1)
@@ -127,13 +151,12 @@ export default {
         const data2 = resp.data._items[1];
         self.imgs.push(data2);
         self.paperSrc2 = `data:image/jpeg;base64,${data2.pic}`;
-        self.paperSrc.push(self.paperSrc2);*/
-
+        self.paperSrc.push(self.paperSrc2); */
       }).catch(() => {
         // empty
       });
 
-      /*axios.get(url, { params: { _: Math.random() } }).then((resp) => {
+      /* axios.get(url, { params: { _: Math.random() } }).then((resp) => {
         //chai.assert.lengthOf(resp.data._items, 1,
         //'the response from /image does not have exactly 1 item');
         const data = resp.data._items[0];
@@ -142,7 +165,7 @@ export default {
         self.imgs.push(data);
       }).catch(() => {
         // empty
-      });*/
+      }); */
     },
 
   },
