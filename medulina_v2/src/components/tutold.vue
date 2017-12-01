@@ -3,8 +3,9 @@
     <b-container>
     <div class="card-deck" >
       <div class="paperImg" v-for="(img, index) in nImgs">
-      <!--<div class="paperImg" v-for="(img, index) in paperSrc">-->
-        <div class="card" :key="index">
+        <Card :key="index" :id="index" :paperSrc="paperSrc[index]"></Card>
+        <!--<div class="paperImg" v-for="(img, index) in paperSrc">-->
+        <!--<div class="card" :key="index">
           <Paper
           :paper-src="paperSrc[index]"
           :ref="`a${index}`"
@@ -17,10 +18,10 @@
           </div>
           <div class="card-footer">
             <div>
-              <small class="text-muted">slice</small>
+              <small class="text-muted"></small>
             </div>
           </div>
-        </div>
+        </div>-->
 
 
       </div>
@@ -40,6 +41,7 @@ import axios from 'axios';
 import chai from 'chai';
 import config from '../config';
 import ImageCard from './ImageCard';
+import Card from './card';
 
 
 export default {
@@ -57,7 +59,7 @@ export default {
       imgs: [],
     };
   },
-  components: { Paper, ImageCard },
+  components: { Paper, ImageCard, Card },
   props: ['task', 'login', 'isAuthenticated'],
   created() {
 
@@ -141,6 +143,7 @@ export default {
         for (let i = 0; i < resp.data._items.length; i += 1) {
           const data = resp.data._items[i];
           self.paperSrc.push(`data:image/jpeg;base64,${data.pic}`);
+          //self.imgs.push(data);
         }
 
         /* const data = resp.data._items[0];
