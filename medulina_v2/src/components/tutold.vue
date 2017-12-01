@@ -57,8 +57,8 @@ export default {
       chai.assert.isNotNull(config.image_url);
 
       let url = `${config.image_url}?where={"task":"${this.task}"}`;
-      url = `${url}&max_results=1`;
-      url = `${url}&user_id=${this.login.id}&token=${this.login.token}`;
+      url = `${url}&max_results=2`;
+      //url = `${url}&user_id=${this.login.id}&token=${this.login.token}`;
       // console.log("URL FOR GET IMAGES IS", url)
       return url;
     },
@@ -93,27 +93,56 @@ export default {
       const url = this.image_url;
       console.log(url);
 
-      axios.get(url, { params: { _: Math.random() } }).then((resp) => {
-        chai.assert.lengthOf(resp.data._items, 1,
-        'the response from /image does not have exactly 1 item');
+      /*axios.get(url, { params: { _: Math.random() } }).then((resp) => {
+        //chai.assert.lengthOf(resp.data._items, 1,
+        //'the response from /image does not have exactly 1 item');
         const data = resp.data._items[0];
         self.imgs.push(data);
         self.paperSrc1 = `data:image/jpeg;base64,${data.pic}`;
         self.paperSrc.push(self.paperSrc1)
+
+        const data2 = resp.data._items[1];
+        self.imgs.push(data2);
+        self.paperSrc2 = `data:image/jpeg;base64,${data2.pic}`;
+        self.paperSrc.push(self.paperSrc2);
+
+      }).catch(() => {
+        // empty
+      });*/
+
+      axios.get(url, { params: { _: Math.random() } }).then((resp) => {
+        //chai.assert.lengthOf(resp.data._items, 1,
+        //'the response from /image does not have exactly 1 item');
+
+        for (let i=0; i<resp.data._items.length; i += 1){
+          const data = resp.data._items[i];
+          self.paperSrc.push(`data:image/jpeg;base64,${data.pic}`)
+        }
+
+        /*const data = resp.data._items[0];
+        self.imgs.push(data);
+        self.paperSrc1 = `data:image/jpeg;base64,${data.pic}`;
+        self.paperSrc.push(self.paperSrc1)
+
+        const data2 = resp.data._items[1];
+        self.imgs.push(data2);
+        self.paperSrc2 = `data:image/jpeg;base64,${data2.pic}`;
+        self.paperSrc.push(self.paperSrc2);*/
+
       }).catch(() => {
         // empty
       });
 
-      axios.get(url, { params: { _: Math.random() } }).then((resp) => {
-        chai.assert.lengthOf(resp.data._items, 1,
-        'the response from /image does not have exactly 1 item');
+      /*axios.get(url, { params: { _: Math.random() } }).then((resp) => {
+        //chai.assert.lengthOf(resp.data._items, 1,
+        //'the response from /image does not have exactly 1 item');
         const data = resp.data._items[0];
         self.paperSrc2 = `data:image/jpeg;base64,${data.pic}`;
         self.paperSrc.push(self.paperSrc2)
         self.imgs.push(data);
       }).catch(() => {
         // empty
-      });
+      });*/
     },
 
   },
