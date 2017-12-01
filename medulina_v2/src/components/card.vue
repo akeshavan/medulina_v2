@@ -29,6 +29,6 @@ export default {
     };
   },
   components: { Paper },
-  props: ['paperSrc', 'key', 'id'],
+  props: ['paperSrc', 'key', 'id', 'i'],
 };
 </script>

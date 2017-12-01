@@ -13,6 +13,7 @@
               :image="allImages[index]" :id="`pic${index}`"
               :ref="`pic${index}`"
               :key="`pic${index}`"
+              :i="imgs[index]"
               ></ImageCard>
 
 
