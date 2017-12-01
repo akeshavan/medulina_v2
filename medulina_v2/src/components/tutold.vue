@@ -10,7 +10,7 @@
 
       <b-row v-for="rowIdx in totImgs/3" class="mt-1">
         <b-col v-for="colIdx in 3" md="12" sm="12" lg="4" class="mt-2 mb-1">
-          <Card :id="`a${(rowIdx-1)*3+(colIdx-1)}`" :paperSrc="paperSrc[(rowIdx-1)*3+(colIdx-1)]" :info="imgs[(rowIdx-1)*3+(colIdx-1)]"></Card>
+          <ImageCard :id="`a${(rowIdx-1)*3+(colIdx-1)}`" :paperSrc="paperSrc[(rowIdx-1)*3+(colIdx-1)]" :info="imgs[(rowIdx-1)*3+(colIdx-1)]"></ImageCard>
         </b-col>
       <!--<div class="card-deck">
         <div class="paperImg" v-for="(img, index) in totImgs">
@@ -35,7 +35,7 @@ import axios from 'axios';
 import chai from 'chai';
 import config from '../config';
 import ImageCard from './ImageCard';
-import Card from './card';
+
 
 
 export default {
@@ -55,7 +55,7 @@ export default {
       imgs: [],
     };
   },
-  components: { Paper, ImageCard, Card },
+  components: { Paper, ImageCard },
   props: ['task', 'login', 'isAuthenticated', 'all_tasks'],
   created() {
 
