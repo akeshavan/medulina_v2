@@ -2,9 +2,9 @@
   <div id="tutorial">
     <b-container>
     <div class="card-deck" >
-      <div class="paperImg" v-for="(img, index) in [1,2,3,4,5,6]">
+      <div class="paperImg" v-for="(img, index) in nImgs">
       <!--<div class="paperImg" v-for="(img, index) in paperSrc">-->
-        <div class="card">
+        <div class="card" :key="index">
           <Paper
           :paper-src="paperSrc[index]"
           :ref="`a${index}`"
