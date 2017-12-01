@@ -2,7 +2,7 @@
   <div id="tutorial">
     <b-container>
     <div class="card-deck" >
-      <div class="paperImg" v-for="(img, index) in nImgs">
+      <div class="paperImg" v-for="(img, index) in totImgs">
         <Card :id="`a${index}`" :paperSrc="paperSrc[index]" :info="imgs[index]"></Card>
         <!--<div class="paperImg" v-for="(img, index) in paperSrc">-->
         <!--<div class="card" :key="index">
@@ -26,6 +26,7 @@
 
       </div>
     </div>
+    <b-button @click="addMore" class="mb-3">Add More</b-button>
 
 
 
@@ -56,6 +57,8 @@ export default {
       paperSrc2: null,
       paperSrc: [],
       nImgs: 6,
+      totImgs: 6,
+      page: 1,
       imgs: [],
     };
   },
@@ -83,7 +86,7 @@ export default {
       chai.assert.isNotNull(config.image_url);
 
       let url = `${config.image_url}?where={"task":"${this.task}"}`;
-      url = `${url}&max_results=6`;
+      url = `${url}&max_results=${this.nImgs}&page=${this.page}`;
       // url = `${url}&user_id=${this.login.id}&token=${this.login.token}`;
       // console.log("URL FOR GET IMAGES IS", url)
       return url;
@@ -101,6 +104,10 @@ export default {
     },
   },
   methods: {
+
+    addMore() {
+
+    },
 
     applyDrawing(pixelLog) {
       this.$refs.fill.roi.fillPixelLog(pixelLog, this.$refs.fill.draw.LUT);
