@@ -215,10 +215,10 @@
 
 .correct.view.grad{
   background: $brand-warning; /* For browsers that do not support gradients */
-  background: -webkit-radial-gradient($brand-warning, white); /* Safari 5.1 to 6.0 */
-  background: -o-radial-gradient($brand-warning, white); /* For Opera 11.6 to 12.0 */
-  background: -moz-radial-gradient($brand-warning, white); /* For Firefox 3.6 to 15 */
-  background: radial-gradient($brand-warning, white); /* Standard syntax */
+  background: -webkit-radial-gradient($brand-warning, $brand-primary); /* Safari 5.1 to 6.0 */
+  background: -o-radial-gradient($brand-warning, $brand-primary); /* For Opera 11.6 to 12.0 */
+  background: -moz-radial-gradient($brand-warning, $brand-primary); /* For Firefox 3.6 to 15 */
+  background: radial-gradient($brand-warning, $brand-primary); /* Standard syntax */
 }
 
 .profile {
@@ -481,7 +481,7 @@ export default {
           const maxVote = resp.data._items[0].nattempts;
           const colorscale = d3.scaleLinear()
             .domain([0, 1])
-            .range(['white', style.locals.warning])
+            .range([style.locals.primary, style.locals.warning])
             .interpolate(d3.interpolateLab);
           for (let i = 1; i < maxVote + 1; i += 1) {
             LUT[i] = colorscale(i / maxVote);

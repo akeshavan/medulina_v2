@@ -75,7 +75,7 @@ export default {
 
       const colorscale = d3.scaleLinear()
         .domain([0, 1])
-        .range(['white', style.locals.warning])
+        .range([style.locals.primary, style.locals.warning])
         .interpolate(d3.interpolateLab);
       for (let i = 1; i < maxVote + 1; i += 1) {
         LUT[i] = colorscale(i / maxVote);

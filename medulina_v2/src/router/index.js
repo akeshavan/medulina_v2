@@ -9,7 +9,7 @@ import Profile from '@/components/Profile';
 import About from '@/components/About';
 import Consent from '@/components/Consent';
 import Project from '@/components/Project';
-import tutold from '@/components/tutold';
+
 // import 'bootstrap/dist/css/bootstrap.css';
 // import 'bootstrap-vue/dist/bootstrap-vue.css';
 
@@ -42,22 +42,16 @@ export default new Router({
       component: Tutorial,
     },
     {
-      path: '/tutold/:task',
-      name: 'Tutorial',
-      props: true,
-      component: tutold,
-    },
-    {
       path: '/leaderboard/:task',
       name: 'Leaderboard',
       props: true,
       component: Leaderboard,
     },
     {
-      path: '/tutold/:task',
+      path: '/project/:task',
       name: 'Project',
       props: true,
-      component: tutold,
+      component: Project,
     },
     {
       path: '/profile/:id',
