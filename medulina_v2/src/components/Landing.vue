@@ -30,6 +30,11 @@
                   >
                       Leaderboard
                   </router-link>
+                  <router-link :to="{ name: 'Project', params: {task: t.task} }"
+                  :class="{'btn btn-success': t.task == task, 'btn btn-secondary': t.task != task}"
+                  >
+                      View Project
+                  </router-link>
 
               </b-card>
           </div>

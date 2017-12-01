@@ -8,6 +8,7 @@ import Leaderboard from '@/components/Leaderboard';
 import Profile from '@/components/Profile';
 import About from '@/components/About';
 import Consent from '@/components/Consent';
+import Project from '@/components/Project';
 // import 'bootstrap/dist/css/bootstrap.css';
 // import 'bootstrap-vue/dist/bootstrap-vue.css';
 
@@ -44,6 +45,12 @@ export default new Router({
       name: 'Leaderboard',
       props: true,
       component: Leaderboard,
+    },
+    {
+      path: '/project/:task',
+      name: 'Project',
+      props: true,
+      component: Project,
     },
     {
       path: '/profile/:id',

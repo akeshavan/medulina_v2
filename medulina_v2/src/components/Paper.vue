@@ -834,6 +834,7 @@ export default {
     },
 
     initImg() {
+      console.log('activating scope', this.id);
       this.scope.activate();
       this.base = new this.scope.paper.Raster(this.paperSrc);
 
@@ -856,10 +857,11 @@ export default {
         self.roi.onMouseDrag = self.dragHandler;
         self.roi.onMouseUp = (e) => {
           self.reset_draw(e);
-          console.log('touchmode', self.touch.mode);
+          console.log('touchmode', self.touch.mode, self.id);
           self.$emit('draw', self.roi.getNonZeroPixels());
         };
         self.brightcont();
+        console.log('completed loading', self.id);
       };
     },
   },
@@ -915,16 +917,18 @@ export default {
       default: 'canvas-id',
     },
     LUT: {
-      default: {
-        0: {
-          red: 0,
-          green: 0,
-          blue: 0,
-          alpha: 0,
-        },
-        1: 'darkviolet',
-        2: '#87BCDE',
-        3: '#FF595E',
+      default() {
+        return {
+          0: {
+            red: 0,
+            green: 0,
+            blue: 0,
+            alpha: 0,
+          },
+          1: 'darkviolet',
+          2: '#87BCDE',
+          3: '#FF595E',
+        };
       },
     },
   },
@@ -942,7 +946,7 @@ export default {
   },
 
   mounted() {
-    console.log('mounting canvas');
+    console.log('mounting canvas', this.id);
     const scope = new paper.PaperScope();
     scope.setup(document.getElementById(this.id));
     // console.log("scope is", scope, "id is", this.id)
