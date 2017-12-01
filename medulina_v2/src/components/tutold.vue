@@ -106,7 +106,9 @@ export default {
   methods: {
 
     addMore() {
-
+      this.page += 1;
+      this.totImgs += this.nImgs;
+      this.setImages();
     },
 
     applyDrawing(pixelLog) {
