@@ -834,7 +834,7 @@ export default {
     },
 
     initImg() {
-      console.log('activating scope', this.id);
+      //console.log('activating scope', this.id);
       this.scope.activate();
       this.base = new this.scope.paper.Raster(this.paperSrc);
 
@@ -857,11 +857,12 @@ export default {
         self.roi.onMouseDrag = self.dragHandler;
         self.roi.onMouseUp = (e) => {
           self.reset_draw(e);
-          console.log('touchmode', self.touch.mode, self.id);
+          //console.log('touchmode', self.touch.mode, self.id);
           self.$emit('draw', self.roi.getNonZeroPixels());
         };
         self.brightcont();
-        console.log('completed loading', self.id);
+        self.$emit('loaded_image', self.id);
+        //console.log('completed loading', self.id);
       };
     },
   },

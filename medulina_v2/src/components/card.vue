@@ -4,6 +4,7 @@
     :paper-src="paperSrc"
     :ref="id"
     :id="id"
+    v-on:loaded_image="logLoad"
     ></Paper>
     <div class="card-body">
       <h4 class="card-title">Title</h4>
@@ -20,6 +21,7 @@
 <style></style>
 <script>
 import Paper from './Paper';
+import config from '../config';
 
 export default {
   name: 'cardo',
@@ -27,6 +29,20 @@ export default {
     return {
 
     };
+  },
+  computed: {
+    aggUrl() {
+      return `${config.apiHome}/api/v1/maskagg?aggregate={"$image_search":"${this.info._id}"}`;
+    },
+    truthUrl() {
+      return `${config.edit_url}?where={"mode":"truth","image_id":"${this.info._id}"}`;
+    },
+  },
+  methods: {
+    logLoad(i) {
+      console.log(i);
+    }
+
   },
   components: { Paper },
   props: ['paperSrc', 'id', 'info'],
