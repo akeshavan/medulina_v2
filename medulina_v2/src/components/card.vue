@@ -20,6 +20,7 @@
 </template>
 <style></style>
 <script>
+import axios from 'axios';
 import Paper from './Paper';
 import config from '../config';
 
@@ -41,7 +42,13 @@ export default {
   methods: {
     logLoad(i) {
       console.log(i);
-    }
+      this.getTruth(i);
+    },
+    getTruth(ref) {
+      return axios.get(this.truthUrl).then((resp) => {
+        this.$refs[ref].add_roi(resp.data._items[0].pic, 'fn', 1);
+      });
+    },
 
   },
   components: { Paper },

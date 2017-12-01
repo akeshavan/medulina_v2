@@ -483,6 +483,7 @@ export default {
     },
 
     add_roi(data, type, doDrag, lut) {
+      this.scope.activate();
       chai.assert.oneOf(type, ['fp', 'tp', 'fn']);
       this[type] = new paper.Raster({});
       this[type].setSize(this.base.size);
