@@ -13,7 +13,7 @@
     </div>
     <div class="card-footer">
       <div>
-        <small class="text-muted"></small>
+        <small class="text-muted" v-if="this.loaded">{{info.slice}}</small>
       </div>
     </div>
   </div>
@@ -28,7 +28,7 @@ export default {
   name: 'cardo',
   data() {
     return {
-
+      loaded: false,
     };
   },
   computed: {
@@ -42,6 +42,7 @@ export default {
   methods: {
     logLoad(i) {
       console.log(i);
+      this.loaded = true;
       this.getTruth(i);
     },
     getTruth(ref) {
