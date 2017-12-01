@@ -29,6 +29,7 @@ export default {
   data() {
     return {
       loaded: false,
+      r: '',
     };
   },
   computed: {
@@ -42,14 +43,22 @@ export default {
   methods: {
     logLoad(i) {
       console.log(i);
+      this.r = i;
       this.loaded = true;
       this.getTruth(i);
+      this.getAgg(i);
     },
     getTruth(ref) {
       return axios.get(this.truthUrl).then((resp) => {
-        this.$refs[ref].add_roi(resp.data._items[0].pic, 'fn', 1);
+        this.$refs[this.r].add_roi(resp.data._items[0].pic, 'fn', 1);
       });
     },
+    getAgg(ref) {
+      return axios.get(this.aggUrl).then((resp) => {
+        console.log(resp.data);
+        this.$refs[this.r].add_roi(resp.data.mask_sum, 'fp', 1);
+      });
+    }
 
   },
   components: { Paper },

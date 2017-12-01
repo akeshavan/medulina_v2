@@ -86,7 +86,7 @@ export default {
       chai.assert.isNotNull(config.image_url);
 
       let url = `${config.image_url}?where={"task":"${this.task}"}`;
-      url = `${url}&max_results=${this.nImgs}&page=${this.page}&sort=_created`;
+      url = `${url}&max_results=${this.nImgs}&page=${this.page}&sort=-_created`;
       // url = `${url}&user_id=${this.login.id}&token=${this.login.token}`;
       // console.log("URL FOR GET IMAGES IS", url)
       return url;
