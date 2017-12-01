@@ -14,7 +14,7 @@
     </div>
     <div class="card-footer">
       <div>
-        <small class="text-muted" v-if="this.loaded">{{info.slice}}</small>
+        <small class="text-muted" v-if="this.loaded">slice: {{info.slice}}</small>
       </div>
     </div>
   </div>

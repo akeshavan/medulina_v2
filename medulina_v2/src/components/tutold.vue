@@ -1,31 +1,20 @@
 <template>
   <div id="tutorial">
+
     <b-container>
-    <div class="card-deck" >
+      <b-row style="padding-bottom: 150px;">
+        <div class="jumbotron mt-3 mb-3 w-100">
+          <h1>{{taskInfo.name}}</h1>
+        </div>
+      </b-row>
+
+      <b-row>
+    <div class="card-deck">
       <div class="paperImg" v-for="(img, index) in totImgs">
         <Card :id="`a${index}`" :paperSrc="paperSrc[index]" :info="imgs[index]"></Card>
-        <!--<div class="paperImg" v-for="(img, index) in paperSrc">-->
-        <!--<div class="card" :key="index">
-          <Paper
-          :paper-src="paperSrc[index]"
-          :ref="`a${index}`"
-          :id="`b${index}`"
-          ></Paper>
-          <div class="card-body">
-            <h4 class="card-title">Title</h4>
-            <p class="card-text">hi</p>
-
-          </div>
-          <div class="card-footer">
-            <div>
-              <small class="text-muted"></small>
-            </div>
-          </div>
-        </div>-->
-
-
       </div>
     </div>
+  </b-row>
     <b-button @click="addMore" class="mb-3">Show More</b-button>
 
 
@@ -63,7 +52,7 @@ export default {
     };
   },
   components: { Paper, ImageCard, Card },
-  props: ['task', 'login', 'isAuthenticated'],
+  props: ['task', 'login', 'isAuthenticated', 'all_tasks'],
   created() {
 
   },
@@ -72,6 +61,16 @@ export default {
     this.setImages();
   },
   computed: {
+    taskInfo() {
+      let taskInfo = null;
+      this.all_tasks.forEach((val) => {
+        if (val.task === this.task) {
+          taskInfo = val;
+        }
+      });
+      return taskInfo;
+    },
+
     imgArr() {
       const d = [];
       for (let i = 0; i < d; i += 1) {
@@ -154,7 +153,7 @@ export default {
 #tutorial {
   width: inherit;
   height: inherit;
-  margin-top: 120px;
+
 }
 
 canvas {
