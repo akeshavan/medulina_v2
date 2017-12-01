@@ -2,20 +2,24 @@
   <div id="tutorial">
 
     <b-container>
-      <b-row style="padding-bottom: 150px;">
+      <b-row style="">
         <div class="jumbotron mt-3 mb-3 w-100">
           <h1>{{taskInfo.name}}</h1>
         </div>
       </b-row>
 
-      <b-row>
-    <div class="card-deck">
-      <div class="paperImg" v-for="(img, index) in totImgs">
-        <Card :id="`a${index}`" :paperSrc="paperSrc[index]" :info="imgs[index]"></Card>
-      </div>
-    </div>
-  </b-row>
-    <b-button @click="addMore" class="mb-3">Show More</b-button>
+      <b-row v-for="rowIdx in totImgs/3" class="mt-1">
+        <b-col v-for="colIdx in 3" md="12" sm="12" lg="4" class="mt-2 mb-1">
+          <Card :id="`a${(rowIdx-1)*3+(colIdx-1)}`" :paperSrc="paperSrc[(rowIdx-1)*3+(colIdx-1)]" :info="imgs[(rowIdx-1)*3+(colIdx-1)]"></Card>
+        </b-col>
+      <!--<div class="card-deck">
+        <div class="paperImg" v-for="(img, index) in totImgs">
+          <Card :id="`a${index}`" :paperSrc="paperSrc[index]" :info="imgs[index]"></Card>
+        </div>
+      </div>-->
+      </b-row>
+
+    <b-button @click="addMore" class="mt-3 mb-3">Show More</b-button>
 
 
 
@@ -149,6 +153,8 @@ export default {
 </script>
 
 <style>
+
+
 
 #tutorial {
   width: inherit;
