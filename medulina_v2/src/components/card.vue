@@ -1,8 +1,8 @@
 <template>
-  <div class="card" :key="key">
+  <div class="card">
     <Paper
     :paper-src="paperSrc"
-    :ref="key"
+    :ref="id"
     :id="id"
     ></Paper>
     <div class="card-body">
@@ -29,6 +29,6 @@ export default {
     };
   },
   components: { Paper },
-  props: ['paperSrc', 'key', 'id', 'i'],
+  props: ['paperSrc', 'id', 'info'],
 };
 </script>

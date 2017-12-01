@@ -3,7 +3,7 @@
     <b-container>
     <div class="card-deck" >
       <div class="paperImg" v-for="(img, index) in nImgs">
-        <Card :key="index" :id="`a${index}`" :paperSrc="paperSrc[index]"></Card>
+        <Card :id="`a${index}`" :paperSrc="paperSrc[index]" :info="imgs[index]"></Card>
         <!--<div class="paperImg" v-for="(img, index) in paperSrc">-->
         <!--<div class="card" :key="index">
           <Paper
