@@ -54,10 +54,10 @@ export default new Router({
       component: Leaderboard,
     },
     {
-      path: '/project/:task',
+      path: '/tutold/:task',
       name: 'Project',
       props: true,
-      component: Project,
+      component: tutold,
     },
     {
       path: '/profile/:id',
