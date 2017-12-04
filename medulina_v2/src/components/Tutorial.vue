@@ -1,9 +1,9 @@
 <template>
   <div class="tutorial" ref="tutorial">
-
+    <div class="all">
     <!-- STEP 1-->
     <transition name="fade" appear>
-      <div v-if="currentStep('step1')" class="step1 pb-2">
+      <div v-if="currentStep('step1')" class="step1 next pb-2">
         <b-container>
           <h3 class="pt-4 pb-3">{{taskInfo.tutorial_title}}</h3>
           <p class="lead"> {{taskInfo.desc}}</p>
@@ -205,7 +205,7 @@
 
           </div>
       </b-collapse>
-
+    </div>
       <b-navbar  toggleable="md" type="dark"
       variant="info" class="navbar-fixed-bottom"
       id="bottonNav" style="position: absolute; bottom: 0; width: 100%;"
@@ -250,12 +250,12 @@
   .step1.next {
     position: absolute;
     top: 56px;
-    background-color: rgba(255,255,255,0);
+    background-color: rgba(255,255,255,0.75);
     width: 100%;
   }
 
   .next {
-    position: absolute;
+    position: fixed;
     top: 56px;
     background-color: rgba(255,255,255,0);
     width: 100%;
@@ -272,14 +272,22 @@
     width: inherit;
     height: calc(100vh - 56px);
     overflow-y: hidden;
+    background-color: black;
   }
 
   .menuOpts {
     margin: auto;
     text-align: center;
-    position: absolute;
-    bottom: 0px;
-    height: 200px;
+    position: fixed;
+    bottom: 80px;
+    height: 120px;
+  }
+
+  #bottonNav {
+    position: fixed !important;
+    bottom: 0;
+    width: 100%;
+    height: 56px;
   }
 
   .cardArea {
@@ -296,9 +304,10 @@
     min-width: 200px;
   }
 
-  .isAuth {
-    height: 100%;
+  .all {
+    height: calc(100vh - 56px - 54px);
   }
+
 
   canvas {
 

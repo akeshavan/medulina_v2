@@ -438,6 +438,7 @@ export default {
       fp: null,
       fn: null,
       view: null,
+      viewHeight: null,
       zoomFactor: 1,
       touch: {
         startScale: null,
@@ -524,27 +525,32 @@ export default {
 
       // allRasters.map(function(r){r.fitBounds(view.bounds)})
       // console.log("resizing")
-      //console.log('resizing', this.id);
-      if (this.base) {
-        this.view.setZoom(1);
-        this.base.fitBounds(this.view.bounds);
-        this.zoomFactor = 1;
-      }
+      // console.log('resizing', this.id);
+      console.log('scrollHeight', document.body.scrollHeight, this.viewHeight);
 
-      if (this.roi) {
-        this.roi.fitBounds(this.view.bounds);
-      }
+      if (document.body.scrollHeight !== this.viewHeight) {
+        this.viewHeight = document.body.scrollHeight;
+        if (this.base) {
+          this.view.setZoom(1);
+          this.base.fitBounds(this.view.bounds);
+          this.zoomFactor = 1;
+        }
 
-      if (this.tp) {
-        this.tp.fitBounds(this.view.bounds);
-      }
+        if (this.roi) {
+          this.roi.fitBounds(this.view.bounds);
+        }
 
-      if (this.fn) {
-        this.fn.fitBounds(this.view.bounds);
-      }
+        if (this.tp) {
+          this.tp.fitBounds(this.view.bounds);
+        }
 
-      if (this.fp) {
-        this.fp.fitBounds(this.view.bounds);
+        if (this.fn) {
+          this.fn.fitBounds(this.view.bounds);
+        }
+
+        if (this.fp) {
+          this.fp.fitBounds(this.view.bounds);
+        }
       }
     },
 
@@ -954,6 +960,8 @@ export default {
     // console.log("scope is", scope, "id is", this.id)
     this.scope = scope;
     this.initImg();
+
+    this.viewHeight = document.body.scrollHeight;
 
     const el = document.getElementById(this.id);
     console.log(el);

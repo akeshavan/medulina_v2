@@ -1,7 +1,7 @@
 <template>
   <div id="app">
 
-    <b-navbar toggleable="md" type="light" variant="info" fixed>
+    <b-navbar toggleable="md" type="light" variant="info" fixed class="fixed-top">
 
       <b-nav-toggle target="nav_collapse"></b-nav-toggle>
 
@@ -407,7 +407,7 @@ export default {
   }
 
   .routerContent{
-    /*margin-top: 40px;*/
+    margin-top: 56px;
     height: 100%;
     width: 100%;
   }

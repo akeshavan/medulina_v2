@@ -1,14 +1,14 @@
 <template>
   <div class="play" ref="play">
     <div v-if="isAuthenticated && login.consent" class="isAuth">
-      <b-alert :show="fillErr" class="mb-0"
+      <b-alert :show="fillErr" class="mb-0 playalert"
       variant="danger" :dismissible="showDismiss"
       v-on:dismissed="fillErr=false;"
       >
         You are filling too much. Remember to close your loops.
       </b-alert>
 
-      <b-alert :show="login.loginType == 'anon'" class="mb-0"
+      <b-alert :show="login.loginType == 'anon'" class="mb-0 fixed-top playalert"
       variant="danger"
       >
         Your progress will not be saved! Please
@@ -116,7 +116,7 @@
     </div>
     <b-navbar v-if="isAuthenticated && login.consent" toggleable="md" type="dark" variant="info"
       class="navbar-fixed-bottom" id="bottonNav"
-      style="position: fixed !important; bottom: 0; width: 100%;">
+      style="">
 
 
       <!-- Right aligned nav items -->
@@ -154,9 +154,16 @@
   .menuOpts {
     margin: auto;
     text-align: center;
-    position: absolute;
-    bottom: 0px;
-    height: 200px;
+    position: fixed;
+    bottom: 80px;
+    height: 120px;
+  }
+
+  #bottonNav {
+    position: fixed !important;
+    bottom: 0;
+    width: 100%;
+    height: 56px;
   }
 
   .cardArea {
@@ -218,6 +225,11 @@
   .fireworks {
     position: absolute;
     top: 0;
+  }
+
+  .playalert {
+    margin-top: 56px;
+    z-index: 8;
   }
 
 </style>
