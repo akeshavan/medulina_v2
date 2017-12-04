@@ -449,6 +449,7 @@ export default {
       scope: null,
       panFactor: { x: 0, y: 0 },
       panMouseDown: null,
+      drawOrPan: 'draw',
       draw: {
         last: null,
         counter: 0,
@@ -474,6 +475,7 @@ export default {
     doPan(e) {
       if (this.panMouseDown == null) {
         this.panMouseDown = e;
+        this.drawOrPan = 'pan';
       }
       // console.log('panMouseDown', this.panMouseDown);
 
@@ -805,6 +807,7 @@ export default {
         // right click and drag
         this.doPan(e);
       } else {
+        this.drawOrPan = 'draw';
         this.drawLine(e, this.roi, this.paintVal, this.paintSize);
       }
     },
@@ -864,12 +867,12 @@ export default {
         self.roi.onMouseDrag = self.dragHandler;
         self.roi.onMouseUp = (e) => {
           self.reset_draw(e);
-          //console.log('touchmode', self.touch.mode, self.id);
-          self.$emit('draw', self.roi.getNonZeroPixels());
+          // console.log('touchmode', self.touch.mode, self.id);
+          self.$emit(self.drawOrPan, self.roi.getNonZeroPixels());
         };
         self.brightcont();
         self.$emit('loaded_image', self.id);
-        //console.log('completed loading', self.id);
+        // console.log('completed loading', self.id);
       };
     },
   },
