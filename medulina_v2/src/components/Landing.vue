@@ -15,7 +15,7 @@
                   >
                       Play
                   </router-link>
-                  <router-link v-else :to="{ name: 'Consent' }"
+                  <router-link v-else :to="{ name: 'Consent', params: {task: t.task} }"
                   :class="{'btn btn-primary': t.task == task, 'btn btn-secondary': t.task != task}"
                   >
                       Play
