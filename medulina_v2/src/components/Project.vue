@@ -207,7 +207,6 @@ canvas {
     top: -4.5em;
     margin-left: -45px;
     margin-top: -33px;
-    background-image: url("../assets/arrow.svg");
 }
 
 .empty {

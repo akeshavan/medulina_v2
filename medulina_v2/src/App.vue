@@ -178,6 +178,17 @@ export default {
 
     `,
         },
+        { name: 'Prostate Cancer',
+          task: 'prostate001',
+          level: 'hard',
+          text: `
+        This task currently has no training data.
+        `,
+          tutorial_title: 'Finding the ???',
+          desc: `Enter descripton.
+
+    `,
+        },
       ],
       isAuthenticated: false,
       login: {
@@ -419,6 +430,31 @@ export default {
 
   nav {
     z-index: 9;
+  }
+
+  .jumbotron {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+    margin-bottom: 0;
+    background-color: #fff;
+  }
+
+  .jumbotron p:last-child {
+    margin-bottom: 0;
+  }
+
+  .jumbotron-heading {
+    font-weight: 300;
+  }
+
+  .jumbotron .container {
+    max-width: 40rem;
+  }
+
+  .jumbotron h1 {
+    margin-bottom: 20px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid #eee;
   }
 
   /*.footer{

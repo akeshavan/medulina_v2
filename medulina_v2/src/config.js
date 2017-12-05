@@ -23,7 +23,7 @@ switch (host) {
     break;
   }
   default: {
-    apiHome = 'https://api.medulina.com';
+    apiHome = 'https://testapi.medulina.com';
     REDIRECT = 'localhost:8080';
     clientId = 'f586bf4498f82125fc48';
     authUrl = `${apiHome}/api/authenticate/dg/githublocal/`;
