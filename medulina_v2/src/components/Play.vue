@@ -202,7 +202,7 @@
   }
 
   .legend {
-    z-index:8;
+    z-index:999;
     background:rgba(1,1,1,1);
     position: fixed;
     right:3px;
