@@ -32,30 +32,33 @@ function gup(url, name, win, callback) {
   });
 } */
 
-function dressCode(c) {
+function dressCode(c, params) {
   // dress up our code w/ other parts
   let code = c;
-  if (store.get('consent')) {
+  console.log('code params', params);
+
+  if (params.consent) {
     code = `${code}?has_consented=true`;
   }
-  if (store.get('nickname')) {
-    code = `${code}&nickname=${store.get('nickname')}`;
+  if (params.nickname) {
+    code = `${code}&nickname=${params.nickname}`;
   }
-  if (store.get('email')) {
+  if (params.send_emails) {
     code = `${code}&use_email=true`;
   }
-  if (store.get('profile_pic')) {
+  if (params.use_profile_pic) {
     code = `${code}&use_profile_pic=true`;
   }
-  if (store.get('transfer_token') && store.get('transfer_user_id')) {
+  if (params.transfer_token && params.transfer_user_id) {
     // console.log('CODE IS', code)
-    code = `${code}&transfer_token=${store.get('transfer_token')}&transfer_user_id=${store.get('transfer_user_id')}`;
+    code = `${code}&transfer_token=${params.transfer_token}&transfer_user_id=${params.transfer_user_id}`;
   }
+  console.log('the code is', code);
   return code;
 }
 
-function authenticateAgainstServer(token, callback) {
-  const code = dressCode(token);
+function authenticateAgainstServer(token, params, callback) {
+  const code = dressCode(token, params);
   const url = config.auth_url + code;
   axios.get(url).then((resp) => {
     // console.log('the response from the medulina server is', resp)
@@ -67,7 +70,7 @@ function authenticateAgainstServer(token, callback) {
   });
 }
 
-function getGithubCode(_url, REDIRECT, callback) {
+function getGithubCode(_url, REDIRECT, params, callback) {
   const win = window.open(_url, 'windowname1', 'width=800, height=600');
 
   const pollTimer = window.setInterval(() => {
@@ -77,7 +80,7 @@ function getGithubCode(_url, REDIRECT, callback) {
         const url = win.document.URL;
         console.log('url', url);
         gup(url, 'code', win, (code) => {
-          authenticateAgainstServer(code, callback);
+          authenticateAgainstServer(code, params, callback);
         });
       }
     } catch (e) {
@@ -88,9 +91,9 @@ function getGithubCode(_url, REDIRECT, callback) {
 
 
 export default {
-  login(callback) {
+  login(params, callback) {
     const url = `https://github.com/login/oauth/authorize?client_id=${config.client_id}`;
-    getGithubCode(url, config.REDIRECT, callback);
+    getGithubCode(url, config.REDIRECT, params, callback);
   },
 
   getToken() {

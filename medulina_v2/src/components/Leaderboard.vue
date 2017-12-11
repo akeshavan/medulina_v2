@@ -78,7 +78,7 @@ export default {
       return newData;
     },
     get_leaderboard() {
-      axios.get(this.scoreUrl).then((resp) => {
+      axios.get(this.scoreUrl, { _: Math.random() }).then((resp) => {
         console.log(resp);
         let data = resp.data._items;
         data = this.filterData(data);
@@ -92,7 +92,7 @@ export default {
 
   computed: {
     scoreUrl() {
-      let url = `?where={"task": "${this.task}"}&sort=-n_test,-n_try&page=${this.page}`;
+      let url = `?where={"task": "${this.task}","anonymous":false}&sort=-n_test,-n_try&page=${this.page}`;
       url = `${config.score_url}${url}`;
       // 'score?where={"task":"' +task+ '", "username":{"$exists": true}}&sort=-n_test'
       return url;
@@ -109,12 +109,12 @@ export default {
   },
 
   created() {
-    this.get_leaderboard();
+    //this.get_leaderboard();
   },
 
   mounted() {
     // this.$emit('change_task', this.task);
-    this.get_leaderboard();
+    // this.get_leaderboard();
   },
   props: ['task', 'login', 'isAuthenticated', 'all_tasks'],
   watch: {

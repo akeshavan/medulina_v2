@@ -244,7 +244,7 @@ export default {
 
     authenticate() {
       const self = this;
-      auth.login(() => {
+      auth.login(self.login, () => {
         self.getUserInfo();
       });
     },
@@ -257,6 +257,9 @@ export default {
 
     getUserInfo(Token, isAnon) {
       const token = auth.getToken() || Token;
+      chai.assert.isNotNull(token);
+      // chai.assert.isDefined(token);
+
       console.log('is anonymous', isAnon, token);
       const self = this;
 
@@ -271,8 +274,10 @@ export default {
       axios.get(url).then((resp) => {
         self.isAuthenticated = true;
         // TODO: do stuff here, like setting user info variables
+        console.log('the response from', url, "is", resp.data);
         self.setUserInfo(resp, isAnon);
       }).catch((e) => {
+        console.log('error here', e);
         self.logout();
       });
     },
@@ -287,7 +292,7 @@ export default {
       if (data._items.length === 0) {
         this.isAuthenticated = false;
         const e = {};
-        e.msg = 'ERROR';
+        e.msg = 'ERROR, 0 users returned';
         throw e;
       }
       data = data._items[0];
@@ -319,8 +324,10 @@ export default {
     anonymousLogin() {
       console.log('logging out');
       axios.get(config.anonymous_url).then((resp) => {
-        console.log(resp);
+        console.log('anonLogin', resp);
         this.login.token = resp.data.token;
+        this.login.transfer_token = resp.data.transfer_token;
+        this.login.transfer_user_id = resp.data.user_id;
         this.getUserInfo(this.login.token, true);
       }).catch((e) => {
         console.log(e);
