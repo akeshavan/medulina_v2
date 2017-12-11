@@ -244,7 +244,8 @@ export default {
 
     authenticate() {
       const self = this;
-      auth.login(self.login, () => {
+      auth.login(self.login, (resp) => {
+        console.log('authenticate resp', resp);
         self.getUserInfo();
       });
     },

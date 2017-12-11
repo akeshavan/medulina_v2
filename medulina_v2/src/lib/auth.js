@@ -1,5 +1,6 @@
 import store from 'store';
 import axios from 'axios';
+import chai from 'chai';
 import config from '../config';
 
 /* eslint no-underscore-dangle: ["error", { "allow": ["_items", "_meta", "_links", "_id"] }] */
@@ -13,7 +14,7 @@ function gup(url, name, win, callback) {
   const regexS = `[?&]${name}=([^&#]*)`;
   const regex = new RegExp(regexS);
   const results = regex.exec(url);
-  console.log('gup', results);
+  // console.log('gup', results);
   if (results != null) {
     win.close();
     callback(results[1]);
@@ -32,39 +33,66 @@ function gup(url, name, win, callback) {
   });
 } */
 
+// Thanks: https://stackoverflow.com/questions/1714786/query-string-encoding-of-a-javascript-object
+function serialize(obj) {
+  const str = [];
+  const keys = Object.keys(obj);
+  for (let i = 0; i < keys.length; i += 1) {
+    const p = keys[i];
+    if (obj.hasOwnProperty(p)) {
+      str.push(`${encodeURIComponent(p)}=${encodeURIComponent(obj[p])}`);
+    }
+  }
+  return str.join('&');
+}
+
 function dressCode(c, params) {
   // dress up our code w/ other parts
   let code = c;
-  console.log('code params', params);
+  // console.log('code params', params);
+  const p = {};
 
   if (params.consent) {
-    code = `${code}?has_consented=true`;
+    // code = `${code}?has_consented=true`;
+    p.has_consented = true;
   }
   if (params.nickname) {
-    code = `${code}&nickname=${params.nickname}`;
+    // code = `${code}&nickname=${params.nickname}`;
+    p.nickname = params.nickname;
   }
   if (params.send_emails) {
-    code = `${code}&use_email=true`;
+    // code = `${code}&use_email=true`;
+    p.use_email = true;
   }
   if (params.use_profile_pic) {
-    code = `${code}&use_profile_pic=true`;
+    // code = `${code}&use_profile_pic=true`;
+    p.use_profile_pic = true;
   }
   if (params.transfer_token && params.transfer_user_id) {
     // console.log('CODE IS', code)
-    code = `${code}&transfer_token=${params.transfer_token}&transfer_user_id=${params.transfer_user_id}`;
+    // code = `${code}&transfer_token=${params.transfer_token}
+    // &transfer_user_id=${params.transfer_user_id}`;
+    p.transfer_token = params.transfer_token;
+    p.transfer_user_id = params.transfer_user_id;
   }
-  console.log('the code is', code);
+  code = `${code}?${serialize(p)}`;
+  // console.log('the code is', code);
   return code;
 }
 
 function authenticateAgainstServer(token, params, callback) {
   const code = dressCode(token, params);
   const url = config.auth_url + code;
+  // console.log("authenticating against", url);
   axios.get(url).then((resp) => {
-    // console.log('the response from the medulina server is', resp)
+    // console.log('the response from the medulina server is', resp);
+    chai.assert.isDefined(resp.data.token);
+    chai.assert.isNotNull(resp.data.token);
+    // console.log('token is', resp.data.token);
     store.set('token', resp.data.token);
     callback(resp.data.token);
   }).catch((e) => {
+    // console.log('authenticateErr', e);
     callback(null, e);
     store.clearAll();
   });
@@ -78,7 +106,7 @@ function getGithubCode(_url, REDIRECT, params, callback) {
       if (win.document.URL.indexOf(REDIRECT) !== -1) {
         window.clearInterval(pollTimer);
         const url = win.document.URL;
-        console.log('url', url);
+        // console.log('url', url);
         gup(url, 'code', win, (code) => {
           authenticateAgainstServer(code, params, callback);
         });
