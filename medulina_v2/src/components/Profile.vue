@@ -326,7 +326,6 @@ import axios from 'axios';
 import Scatter from './Scatter';
 import Paper from './Paper';
 import config from '../config';
-import chai from 'chai';
 import style from '../custom-bootstrap.scss';
 
 const d3 = require('d3');
@@ -432,7 +431,7 @@ export default {
     },
 
     fetchTrainingData() {
-      return axios.get(this.trainingUrl, { _:Math.random() }).then((resp) => {
+      return axios.get(this.trainingUrl, { _: Math.random() }).then((resp) => {
         console.log('response is', resp);
         const data = resp.data._items;
         data.forEach((v, i) => {

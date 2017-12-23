@@ -4,6 +4,8 @@ import chai from 'chai';
 import config from '../config';
 
 /* eslint no-underscore-dangle: ["error", { "allow": ["_items", "_meta", "_links", "_id"] }] */
+/* eslint no-prototype-builtins: 1 */
+
 
 window.store = store;
 // CREDITS: http://www.gethugames.in/2012/04/authentication-and-authorization-for-google-apis-in-javascript-popup-window-tutorial.html
@@ -32,6 +34,7 @@ function gup(url, name, win, callback) {
     store.clearAll();
   });
 } */
+
 
 // Thanks: https://stackoverflow.com/questions/1714786/query-string-encoding-of-a-javascript-object
 function serialize(obj) {

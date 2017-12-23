@@ -37,7 +37,6 @@ import config from '../config';
 import ImageCard from './ImageCard';
 
 
-
 export default {
   name: 'tutorial',
   data() {
@@ -141,11 +140,9 @@ export default {
           self.paperSrc.push(`data:image/jpeg;base64,${data.pic}`);
           self.imgs.push(data);
         }
-
       }).catch(() => {
         // empty
       });
-
     },
 
   },

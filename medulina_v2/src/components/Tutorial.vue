@@ -2,7 +2,25 @@
   <div class="tutorial" ref="tutorial">
     <div class="all">
     <!-- STEP 1-->
-    <transition name="fade" appear>
+
+    <!--<transition name="fade">
+      <div v-if="currentStep('step1') || currentStep('start')"
+        class="next ">
+        <b-alert show variant="light" class="">
+          <b-progress :value="stepIdx" :max="steps.length-1" class="mb-3"></b-progress>
+          <strong>
+            <h5> {{step.title}} </h5>
+          </strong>
+            {{step.description}}
+            <hr>
+            <b-button variant="outline-secondary" @click="incrementStep(1)">
+              Next
+            </b-button>
+        </b-alert>
+      </div>
+    </transition>-->
+
+    <!--<transition name="fade" appear>
       <div v-if="currentStep('step1')" class="step1 next pb-2">
         <b-container>
           <h3 class="pt-4 pb-3">{{taskInfo.tutorial_title}}</h3>
@@ -18,17 +36,17 @@
     </transition>
 
     <!-- NEXT -->
-      <div class="step1 next pt-2 pb-2" v-if="currentStep('start')">
+      <!--<div class="step1 next pt-2 pb-2" v-if="currentStep('start')">
         <transition name="fade">
           <b-button variant="info" @click="incrementStep(1)" size="lg">
             Next
           </b-button>
         </transition>
-      </div>
+      </div>-->
 
       <!-- STEP 2-->
       <transition name="fade">
-        <div v-if="currentStep('step2') || currentStep('step3') || currentStep('submit')" class="next">
+        <div v-if="currentStep('step1') || currentStep('start') || currentStep('step2') || currentStep('step3') || currentStep('submit')" class="next">
           <b-alert show variant="light" class="mb-0">
             <b-progress :value="stepIdx" :max="steps.length-1" class="mb-3"></b-progress>
             <strong>
@@ -36,6 +54,12 @@
             </strong>
 
               {{step.description}}
+
+              <hr v-if="showNext">
+              <b-button variant="outline-secondary" v-if="showNext" @click="incrementStep(1)">
+                Next
+              </b-button>
+
           </b-alert>
 
 
@@ -128,7 +152,7 @@
           <!--<h3 style="text-align: center">{{score.dice | | formatNumber}}</h3>-->
           <div class="roi">
               <div id="fn"
-              v-bind:class="{'missed': !feedback.fn, 'missed view': feedback.fn}"
+              v-bind:class="{'missed focus': !feedback.fn, 'missed focus view': feedback.fn}"
               v-on:click="toggle('fn')"></div>
               <span style="line-height:50px;">Missed</span>
           </div>
@@ -136,7 +160,7 @@
           <br>
           <div class="roi">
               <div id="fp"
-              v-bind:class="{'incorrect': !feedback.fp, 'incorrect view': feedback.fp}"
+              v-bind:class="{'incorrect focus': !feedback.fp, 'incorrect focus view': feedback.fp}"
               v-on:click="toggle('fp')"></div>
               <span style="line-height:50px;">Incorrect</span>
           </div>
@@ -346,6 +370,15 @@
     width: 120px;
   }
 
+  .focus {
+    animation:pulse 0.5s infinite alternate;
+  }
+
+  @keyframes pulse {
+    from { box-shadow:0px 0px 10px 0px #ffffff; }
+    to { box-shadow:0px 0px 20px 5px #fefefe; }
+  }
+
   .fireworks {
     position: absolute;
     top: 0;
@@ -439,7 +472,7 @@ export default {
       },
       doFirework: false,
       stepIdx: 0,
-      showNext: false,
+      showNext: true,
       n_hide: 0,
       LUT: {
         0: {
@@ -478,15 +511,15 @@ export default {
           title: `Finding ${this.taskInfo.name}`,
           description: this.taskInfo.desc,
           init() {
-
+            self.showNext = true;
           },
           elements: ['step1'] },
         { name: 'Step 1',
-          title: `Finding ${this.taskInfo.name}`,
-          description: this.taskInfo.desc,
+          title: `Here is a ${this.taskInfo.name}`,
+          description: 'Your goal is to color it like this',
           init() {
             self.showROI('paper');
-            self.showNext = false;
+            self.showNext = true;
           },
           elements: ['start'],
         },
@@ -527,7 +560,7 @@ export default {
           init() {
             self.showNext = false;
           },
-          elements: ['bottomNav', 'hide', 'undo', 'step7'],
+          elements: ['bottomNav', 'undo', 'hide', 'step7'],
         },
         { name: 'Step 8',
           title: 'Menu',
@@ -535,7 +568,7 @@ export default {
           init() {
             self.showNext = false;
           },
-          elements: ['bottomNav', 'hide', 'undo', 'step8', 'menu', 'brushSize', 'brushColor', 'brightness', 'contrast'],
+          elements: ['bottomNav', 'step8', 'undo', 'hide', 'menu', 'brushSize', 'brushColor', 'brightness', 'contrast'],
         },
         { name: 'Step 9',
           title: 'Brush Size, Erase/Paint, Brightness, and Contrast',
@@ -595,14 +628,14 @@ export default {
   methods: {
 
     doMouseUp() {
-      console.log(this.stepIdx)
-      if (this.stepIdx === 2){
+      console.log(this.stepIdx);
+      if (this.stepIdx === 2) {
         this.incrementStep(0);
       }
     },
 
     doDblClick() {
-      if (this.stepIdx === 3){
+      if (this.stepIdx === 3) {
         this.incrementStep(0);
       }
       console.log(this.step);
@@ -641,14 +674,10 @@ export default {
             this.step.init();
           }
         });
-      } else {
-        if (this.step.init) {
-          console.log('running init')
-          this.step.init();
-        }
+      } else if (this.step.init) {
+        console.log('running init');
+        this.step.init();
       }
-
-
     },
 
     showROI(paperRef) {
@@ -661,9 +690,8 @@ export default {
         const pic = data._items[0].pic;
         // const LUT = this.$refs[paperRef].draw.LUT;
         this.$refs[paperRef].roi.fillPixelLog(pic, this.LUT);
-        //this.showNext = true;
-
-      }).catch((e) => {
+        // this.showNext = true;
+      }).catch(() => {
         // comment
       });
     },
@@ -686,7 +714,7 @@ export default {
     },
 
     undo() {
-      if (this.$refs.paper.draw.history.length > 1){
+      if (this.$refs.paper.draw.history.length > 1) {
         this.incrementStep(0);
       }
       this.$refs.paper.draw_revert();
@@ -694,7 +722,7 @@ export default {
 
     toggle(roi) {
       console.log('stepIdx', this.stepIdx);
-      if (this.stepIdx === 5){
+      if (this.stepIdx === 5) {
         this.showNext = true;
       }
       this.$refs.paper[roi].visible = !this.$refs.paper[roi].visible;

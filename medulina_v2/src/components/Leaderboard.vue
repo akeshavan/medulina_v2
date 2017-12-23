@@ -51,6 +51,9 @@
 import axios from 'axios';
 import config from '../config';
 
+/* eslint no-underscore-dangle: ["error", { "allow": ["_items", "_meta", "_links", "_id"] }] */
+
+
 export default {
   name: 'Leaderboard',
   data() {
@@ -64,7 +67,7 @@ export default {
   },
   methods: {
     filterData(data) {
-      let i = (this.page - 1)*25 + 1;
+      let i = ((this.page - 1) * 25) + 1;
       const newData = [];
       data.forEach((val) => {
         const v = val;
@@ -109,7 +112,7 @@ export default {
   },
 
   created() {
-    //this.get_leaderboard();
+    // this.get_leaderboard();
   },
 
   mounted() {
@@ -124,7 +127,7 @@ export default {
     },
     page() {
       this.get_leaderboard();
-    }
+    },
   },
 };
 </script>

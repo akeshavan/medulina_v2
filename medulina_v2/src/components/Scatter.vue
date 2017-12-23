@@ -105,7 +105,8 @@ export default {
       console.log('resize', this.$refs[this.id].clientWidth);
       const width = this.$refs[this.id].clientWidth
       - this.prep.margin.left - this.prep.margin.right;
-      const height = this.$refs[this.id].clientHeight - this.prep.margin.top - this.prep.margin.bottom;
+      const height = this.$refs[this.id].clientHeight
+      - this.prep.margin.top - this.prep.margin.bottom;
 
       const svg = d3.select(`#${this.id}`)
         .attr('width', width + this.prep.margin.left + this.prep.margin.right)

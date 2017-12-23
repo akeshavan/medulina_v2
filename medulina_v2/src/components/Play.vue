@@ -228,8 +228,8 @@
   }
 
   .playalert {
-    margin-top: 56px;
     z-index: 8;
+    position: relative;
   }
 
 </style>

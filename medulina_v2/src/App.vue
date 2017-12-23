@@ -126,6 +126,16 @@ Vue.use(VueResize);
 
 Vue.use(VueAxios, axios);
 
+/*document.body.addEventListener('touchmove', (e) => {
+  console.log('touchmove', e.target, window.location.href);
+
+  if (window.location.href.indexOf('tutorial') >= 0) {
+    if (e.target.id !== 'canvas-id' && e.target.className !== 'card-text') {
+      console.log('preventing default', e);
+      e.preventDefault();
+    }
+  }
+});*/
 
 export default {
   name: 'app',
@@ -275,7 +285,7 @@ export default {
       axios.get(url).then((resp) => {
         self.isAuthenticated = true;
         // TODO: do stuff here, like setting user info variables
-        console.log('the response from', url, "is", resp.data);
+        // console.log('the response from', url, "is", resp.data);
         self.setUserInfo(resp, isAnon);
       }).catch((e) => {
         console.log('error here', e);
@@ -332,7 +342,7 @@ export default {
         this.getUserInfo(this.login.token, true);
       }).catch((e) => {
         console.log(e);
-      })
+      });
     },
 
   },
