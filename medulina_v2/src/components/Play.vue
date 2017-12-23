@@ -8,7 +8,7 @@
         You are filling too much. Remember to close your loops.
       </b-alert>
 
-      <b-alert :show="login.loginType == 'anon'" class="mb-0 fixed-top playalert"
+      <b-alert :show="login.loginType == 'anon'" class="mb-0 playalert"
       variant="danger"
       >
         Your progress will not be saved! Please
