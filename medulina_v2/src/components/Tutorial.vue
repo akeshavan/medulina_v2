@@ -555,9 +555,10 @@ export default {
         },
         { name: 'Step 7',
           title: 'Undo',
-          description: `Try drawing something, then click Undo.
+          description: `Click the Undo button on the bottom right.
           Be careful, you can't redo!`,
           init() {
+            self.draw_test_line();
             self.showNext = false;
           },
           elements: ['bottomNav', 'undo', 'hide', 'step7'],
@@ -632,6 +633,11 @@ export default {
       if (this.stepIdx === 2) {
         this.incrementStep(0);
       }
+    },
+
+    draw_test_line() {
+      console.log(this.$refs.paper);
+      this.$refs.paper.testLine();
     },
 
     doDblClick() {

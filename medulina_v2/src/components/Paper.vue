@@ -106,7 +106,7 @@ paper.Raster.prototype.setPixelLog = function setPixelLog(X, Y, color, paintVal)
   y = Math.floor(y);
   this.setPixel(x, y, color);
   if (!isNumeric(paintVal)) {
-    console.log(`Error ${x} ${y} ${paintVal} is not a number`);
+    // console.log(`Error ${x} ${y} ${paintVal} is not a number`);
   }
   try {
     this.pixelLog[x][y] = paintVal; // || val
@@ -127,7 +127,7 @@ paper.Raster.prototype.setPixelLogNoColor = function setPixelLogNoColor(X, Y, co
   y = Math.floor(y);
   // this.setPixel(x,y,val)
   if (!isNumeric(paintVal)) {
-    console.log(`Error ${paintVal} is not a number`);
+    // console.log(`Error ${paintVal} is not a number`);
   }
   try {
     this.pixelLog[x][y] = paintVal; // || val
@@ -528,7 +528,7 @@ export default {
       // allRasters.map(function(r){r.fitBounds(view.bounds)})
       // console.log("resizing")
       // console.log('resizing', this.id);
-      console.log('scrollHeight', document.body.scrollHeight, this.viewHeight);
+      // console.log('scrollHeight', document.body.scrollHeight, this.viewHeight);
 
       if (document.body.scrollHeight !== this.viewHeight) {
         this.viewHeight = document.body.scrollHeight;
@@ -621,7 +621,7 @@ export default {
       /*
         Revert based on history. if init_pop is 0 then it undos a bad floodFill
       */
-      console.log('in draw_revert');
+      // console.log('in draw_revert');
       let roi = Roi;
       roi = roi || this.roi;
       let initPop = InitPop;
@@ -639,19 +639,34 @@ export default {
             roi.setPixelLog(val.x, val.y, self.LUT[val.prev], val.prev);
           });
         } else {
-          console.log('reverting w/ no color');
+          // console.log('reverting w/ no color');
           const self = this;
           values.forEach((val) => {
             if (isNumeric(val.prev)) {
               roi.setPixelLogNoColor(val.x, val.y, self.LUT[val.prev], val.prev);
             } else {
-              console.log(val.prev);
+              // console.log(val.prev);
             }
           });
         }
         this.draw.history.push([]);
         // console.log(draw.history)
       }
+    },
+
+    testLine() {
+      const xs = Object.keys(this.roi.pixelLog);
+      const ys = Object.keys(this.roi.pixelLog[0]);
+      const xN = xs.length - 1;
+      const yN = ys.length - 1;
+
+      this.draw_addHistory(parseInt(xs[1], 0), parseInt(ys[yN - 1], 0),
+        this.roi.pixelLog[parseInt(xs[1], 0)][parseInt(ys[yN - 1], 0)],
+        1);
+
+      this.draw_line(parseInt(xs[1], 0), parseInt(ys[yN - 1], 0),
+        parseInt(xs[xN - 1], 0), parseInt(ys[1], 0), this.LUT[1], this.roi, 1);
+      this.reset_draw();
     },
 
     drawLine(e, me, paintVal, paintSize) {
@@ -663,7 +678,9 @@ export default {
       this.draw_addHistory(local.x, local.y,
         me.pixelLog[local.x][local.y],
         paintVal);
+
       me.setPixelLog(local.x, local.y, this.LUT[paintVal], paintVal);
+
       // console.log("draw.last is", draw.last)
       if (this.draw.last != null) {
         this.draw_line(local.x,
@@ -760,13 +777,13 @@ export default {
         }
       } // end while loop
 
-      console.log(numFill);
+      // console.log(numFill);
       if (numFill < 20000) {
         roi.fillPixelLogFlat(this.draw.history[this.draw.history.length - 1],
           replacementVal, this.LUT);
         this.$emit('fillSuccess');
       } else {
-        console.log('starting revert', numFill, this.draw.history);
+        // console.log('starting revert', numFill, this.draw.history);
         // ui.startProgress()
         if (this.draw.history.length === 1) {
           // omg WHY anisha this is so hacky. write better
@@ -776,7 +793,7 @@ export default {
           this.draw_revert(roi, 0);
         }
         this.$nextTick(() => {
-          console.log('ending revert', this.draw.history);
+          // console.log('ending revert', this.draw.history);
           this.fillErrorEnd();
         });
       }
@@ -787,11 +804,11 @@ export default {
         Starts the recursive flood fill on the raster starting from e.point
       */
       const local = xfm.get_local(e, me);
-      console.log(local.x, local.y);
-      console.log('targetVal', me.pixelLog[local.x][local.y]);
-      console.log('replacementVal', paintVal);
+      // console.log(local.x, local.y);
+      // console.log('targetVal', me.pixelLog[local.x][local.y]);
+      // console.log('replacementVal', paintVal);
       if (!isNumeric(me.pixelLog[local.x][local.y])) {
-        console.log('is not a number!!');
+        // console.log('is not a number!!');
         return;
       }
       this.draw_floodFill(me, local, me.pixelLog[local.x][local.y], paintVal);
@@ -821,7 +838,7 @@ export default {
     removeEvents() {
       const el = document.getElementById(this.id);
       if (el) {
-        console.log('removing events');
+        // console.log('removing events');
         el.removeEventListener('resize', this.onresize);
         el.removeEventListener('mousewheel', this.doZoom);
       }
@@ -844,7 +861,7 @@ export default {
     },
 
     initImg() {
-      //console.log('activating scope', this.id);
+      // console.log('activating scope', this.id);
       this.scope.activate();
       this.base = new this.scope.paper.Raster(this.paperSrc);
 
@@ -949,7 +966,7 @@ export default {
   // 'contrast', 'id', 'mouseUp'],
 
   beforeDestroy: function beforeDestroy(to, from, next) {
-    console.log('destroying', this.id);
+    // ('destroying', this.id);
     this.removeEvents();
     if (next) {
       next();
@@ -957,7 +974,7 @@ export default {
   },
 
   mounted() {
-    console.log('mounting canvas', this.id);
+    // console.log('mounting canvas', this.id);
     const scope = new paper.PaperScope();
     scope.setup(document.getElementById(this.id));
     // console.log("scope is", scope, "id is", this.id)
@@ -967,7 +984,7 @@ export default {
     this.viewHeight = document.body.scrollHeight;
 
     const el = document.getElementById(this.id);
-    console.log(el);
+    // console.log(el);
     el.addEventListener('resize', this.onresize);
     el.addEventListener('mousewheel', this.doZoom);
 
@@ -998,7 +1015,7 @@ export default {
     mc.on('pinchend', (e) => {
         // do something cool
         // console.log("pinchend", window.mode)
-      console.log('ending pinch');
+      // console.log('ending pinch');
       self.touch.mode = false;
       if (e) {
         e.preventDefault();
@@ -1010,7 +1027,7 @@ export default {
 
     mc.on('pinchstart', (e) => {
       // do something cool
-      console.log('starting pinch');
+      // console.log('starting pinch');
       if (e) {
         self.touch.mode = true;
         e.preventDefault();
