@@ -279,7 +279,7 @@ export default {
       // If this fails, then our token is bad; we are NOT authenticated and
       // should be logged out
 
-      const url = `${config.player_url}?where=token%3D%3D%22${token}%22`;
+      const url = `${config.player_url}?where=user_id%3D%3D%22${token}%22`;
 
 
       axios.get(url).then((resp) => {
@@ -339,7 +339,7 @@ export default {
         this.login.token = resp.data.token;
         this.login.transfer_token = resp.data.transfer_token;
         this.login.transfer_user_id = resp.data.user_id;
-        this.getUserInfo(this.login.token, true);
+        this.getUserInfo(resp.data.user_id, true);
       }).catch((e) => {
         console.log(e);
       });

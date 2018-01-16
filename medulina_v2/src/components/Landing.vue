@@ -1,6 +1,12 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
+    <div class='jumbotron'>
+      <h1>
+        <img src="../assets/logo.svg" class="logo landing-logo"/>
+        {{ msg }}
+      </h1>
+      <p class="lead text-muted"> Help us teach computers to read medical images </p>
+    </div>
     <div class="container">
       <div class="row">
         <div v-for="t in all_tasks" class="task_section">
@@ -74,5 +80,15 @@
 
 .hello {
   margin-top: 20px;
+}
+
+.landing-logo {
+    background: #024b70;
+    padding: 10px;
+    width: 55px;
+    height: 55px;
+    border-style: solid;
+    border-color: #0093d2;
+    border-radius: 50px;
 }
 </style>
