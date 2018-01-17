@@ -23,7 +23,7 @@
           <b-nav-item-dropdown right v-if="login.loginType == 'github'">
             <!-- Using button-content slot -->
             <template slot="button-content" >
-              <em>{{login.username}}</em>
+              <em>{{login.nickname}}</em>
             </template>
             <b-dropdown-item :to="{ name: 'Profile', params: {id: this.login.id}}">Profile</b-dropdown-item>
             <b-dropdown-item href="#" @click="logout()">Signout</b-dropdown-item>
@@ -76,6 +76,13 @@
       </b-navbar-nav>
 
     </b-navbar>
+
+    <!-- Set Nickname -->
+    <b-modal id="nickname" title="Set your nickname" ref="nickname" @hidden="putNickname">
+      <p class="my-4"> Choose your nickname to display on the leaderboard </p>
+      <input class="form" placeholder="nickname" v-model="login.nickname"/>
+    </b-modal>
+
     <!-- This is like a navbar. There are two ways to define this
     <router-link :to="{ name: 'Hello' }">Home</router-link>
     <router-link to="/about">About</router-link>-->
@@ -203,7 +210,9 @@ export default {
       isAuthenticated: false,
       login: {
         username: null,
+        nickname: null,
         avatar: 'images/Octocat1.jpg',
+        etag: null,
         github_id: null,
         consent: false,
         total_score: 0,
@@ -218,6 +227,7 @@ export default {
         transfer_token: null,
         transfer_user_id: null,
         user_id: null,
+        endpoint_id: null,
         token: null,
         loginType: 'anon',
       },
@@ -238,6 +248,26 @@ export default {
       // console.log('new papersource', this.$refs.route.paperSrc)
     },
 
+    putNickname() {
+      console.log('nickname', this.login.nickname);
+      const upass = `${this.login.id}:${this.login.token.token}`;
+      axios({
+        method: 'PATCH',
+        url: `${config.player_url}${this.login.endpoint_id}`,
+        crossDomain: true,
+        processData: false,
+        headers: {
+          authorization: `Basic ${btoa(upass)}`, // config.edit_token,
+          'content-type': 'application/json',
+          'if-match': this.login.etag,
+        },
+        data: JSON.stringify({ nickname: this.login.nickname }),
+      }).then((resp) => {
+        console.log('response is', resp);
+      }).catch((e) => {
+        console.log('put error', e);
+      });
+    },
 
     tutorialShow() {
       if (this.$refs.route) {
@@ -267,10 +297,10 @@ export default {
     },
 
     getUserInfo(Token, isAnon) {
-      const token = auth.getToken() || Token;
+      const token = auth.getToken().user_id || Token;
+
       chai.assert.isNotNull(token);
       // chai.assert.isDefined(token);
-
       console.log('is anonymous', isAnon, token);
       const self = this;
 
@@ -312,6 +342,8 @@ export default {
         this.isAuthenticated = true;
         this.login.loginType = 'github';
         this.login.token = auth.getToken();
+        this.login.etag = data._etag;
+        console.log('logged in with GitHub');
       }
       this.login.ave_score = data.ave_score;
       this.login.consent = data.has_consented;
@@ -319,10 +351,18 @@ export default {
       this.login.n_test = data.n_test;
       this.login.n_try = data.n_try;
       this.login.total_score = data.total_score;
-      this.login.id = data._id;
+      this.login.id = data.user_id;
       this.login.avatar = data.avatar;
       this.login.github_id = data.id;
-      this.login.username = data.username;
+      this.login.endpoint_id = data._id;
+      if (!data.nickname && data._etag && this.login.loginType === 'github') {
+        console.log('NEED USERNAME');
+        this.$refs.nickname.show();
+      } else {
+        console.log('data', data);
+        this.login.nickname = data.nickname;
+      }
+
     },
 
     logout() {

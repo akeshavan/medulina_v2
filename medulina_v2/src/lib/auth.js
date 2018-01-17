@@ -86,13 +86,14 @@ function dressCode(c, params) {
 function authenticateAgainstServer(token, params, callback) {
   const code = dressCode(token, params);
   const url = config.auth_url + code;
-  // console.log("authenticating against", url);
+  console.log('authenticating against', url);
   axios.get(url).then((resp) => {
     // console.log('the response from the medulina server is', resp);
     chai.assert.isDefined(resp.data.token);
     chai.assert.isNotNull(resp.data.token);
     // console.log('token is', resp.data.token);
     store.set('token', resp.data.token);
+    store.set('user_id', resp.data.user_id);
     callback(resp.data.token);
   }).catch((e) => {
     // console.log('authenticateErr', e);
@@ -128,7 +129,7 @@ export default {
   },
 
   getToken() {
-    return store.get('token');
+    return { token: store.get('token'), user_id: store.get('user_id') };
   },
 
   logout() {

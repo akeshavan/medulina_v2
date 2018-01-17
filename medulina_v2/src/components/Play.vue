@@ -471,6 +471,8 @@ export default {
         processData: false,
         headers: {
           authorization: config.edit_token,
+          username: this.login.id,
+          password: this.login.token,
           'content-type': 'application/json',
         },
         data: JSON.stringify(imgbody),

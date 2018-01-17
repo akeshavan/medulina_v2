@@ -108,7 +108,13 @@
 
 
 </template>
-<style></style>
+<style>
+
+#consent {
+  padding: 20px;
+}
+
+</style>
 
 <script>
 import axios from 'axios';

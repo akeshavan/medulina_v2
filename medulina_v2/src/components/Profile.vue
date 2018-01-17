@@ -9,13 +9,13 @@
         <div class="row">
           <main>
             <transition name="fade" appear mode="out-in">
-              <h1 :key="user.username"><img :src="user.avatar" class="rounded-circle img-thumbnail thumb" :key="user.username">{{user.username}}</h1>
-              <p class="lead muted" v-if="id==login.id">This is you</p>
+              <h1 :key="user.nickname"><img :src="user.avatar" class="rounded-circle img-thumbnail thumb" :key="user.nickname">{{user.nickname}}</h1>
+              <p class="lead muted" v-if="id==login.endpoint_id">This is you</p>
             </transition>
               <hr>
 
               <h2>
-                <span v-if="id==login.id"> Your</span>
+                <span v-if="id==login.endpoint_id"> Your</span>
                 <b-dropdown id="ddown1" :text="taskInfo.name" class="m-md-2" size="lg" variant="light">
                   <b-dropdown-item v-for="task in all_tasks"
                     v-if="task.name != taskInfo.name"
@@ -387,11 +387,11 @@ export default {
       return taskInfo;
     },
     userUrl() {
-      const id = this.id || this.login.id;
+      const id = this.id || this.login.endpoint_id;
       return `${config.player_url}${id}`;
     },
     trainingUrl() {
-      const userId = this.id || this.login.id;
+      const userId = this.id || this.login.endpoint_id;
       return `${config.edit_url}?where={"mode":"try","task":"${this.task}","user_id":"${userId}"}&max_results=100&sort=-_created`;
     },
     truthUrl() {
