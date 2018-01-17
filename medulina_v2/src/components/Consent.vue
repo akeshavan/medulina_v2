@@ -134,11 +134,11 @@ export default {
       console.log('this.login', this.login);
       const params = {
         user_id: this.login.id,
-        token: this.login.token,
+        token: this.login.token.token,
         has_consented: this.consent,
       };
       console.log('params are', params);
-      const url = `${config.consent_url}?token=${this.login.token}&user_id=${this.login.id}&has_consented=${this.consent}`;
+      const url = `${config.consent_url}?token=${this.login.token.token}&user_id=${this.login.id}&has_consented=${this.consent}`;
       axios.get(url).then((resp) => {
         console.log('afterconsent resp', resp);
         this.$emit('has_consented', resp.data);

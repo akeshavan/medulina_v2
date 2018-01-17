@@ -344,13 +344,13 @@ export default {
   computed: {
     image_url() {
       chai.assert.isNotNull(this.login.id, 'user needs an id!');
-      chai.assert.isNotNull(this.login.token);
+      chai.assert.isNotNull(this.login.token.token);
       chai.assert.isNotNull(this.task);
       chai.assert.isNotNull(config.image_url);
 
       let url = `${config.image_url}?where={"task":"${this.task}"}`;
       url = `${url}&max_results=1`;
-      url = `${url}&user_id=${this.login.id}&token=${this.login.token}`;
+      url = `${url}&user_id=${this.login.id}&token=${this.login.token.token}`;
       // console.log("URL FOR GET IMAGES IS", url)
       return url;
     },
@@ -472,7 +472,7 @@ export default {
         headers: {
           authorization: config.edit_token,
           username: this.login.id,
-          password: this.login.token,
+          password: this.login.token.token,
           'content-type': 'application/json',
         },
         data: JSON.stringify(imgbody),
