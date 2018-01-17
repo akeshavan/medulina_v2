@@ -376,7 +376,7 @@ export default {
       console.log('logging out');
       axios.get(config.anonymous_url).then((resp) => {
         console.log('anonLogin', resp);
-        this.login.token = resp.data.token;
+        this.login.token = { token: resp.data.token };
         this.login.transfer_token = resp.data.transfer_token;
         this.login.transfer_user_id = resp.data.user_id;
         this.getUserInfo(resp.data.user_id, true);
