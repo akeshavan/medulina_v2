@@ -94,6 +94,7 @@ function authenticateAgainstServer(token, params, callback) {
     // console.log('token is', resp.data.token);
     store.set('token', resp.data.token);
     store.set('user_id', resp.data.user_id);
+    console.log('AUTH RESP', resp.data);
     callback(resp.data.token);
   }).catch((e) => {
     // console.log('authenticateErr', e);

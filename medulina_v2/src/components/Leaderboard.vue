@@ -26,8 +26,8 @@
       <b-row>
         <transition name="fade" appear>
           <b-table striped hover :items="allUsers" :fields="fields" :key="task">
-            <template slot="username" scope="row">
-              <b-link :to="'/profile/'+row.item.user_project_id.split('__')[0]">{{row.item.username}}</b-link>
+            <template slot="nickname" scope="row">
+              <b-link :to="'/profile/'+row.item.user_project_id.split('__')[0]">{{row.item.nickname}}</b-link>
             </template>
           </b-table>
         </transition>
@@ -62,7 +62,7 @@ export default {
       next: null,
       total: 0,
       page: 0,
-      fields: ['rank', 'username', 'n_try', 'n_test'],
+      fields: ['rank', 'nickname', 'n_try', 'n_test'],
     };
   },
   methods: {

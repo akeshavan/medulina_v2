@@ -387,7 +387,9 @@ export default {
       return taskInfo;
     },
     userUrl() {
+      console.log("this.id", this.id, "endpoint id", this.login.endpoint_id);
       const id = this.id || this.login.endpoint_id;
+      console.log("the user url is",  `${config.player_url}${id}`);
       return `${config.player_url}${id}`;
     },
     trainingUrl() {
