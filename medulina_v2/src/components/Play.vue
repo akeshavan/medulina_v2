@@ -351,6 +351,7 @@ export default {
       let url = `${config.image_url}?where={"task":"${this.task}"}`;
       url = `${url}&max_results=1`;
       url = `${url}&prev_img_id=${this.image_id}`;
+      url = `${url}&max_results=1`
       url = `${url}&user_id=${this.login.id}&token=${this.login.token.token}`;
       // console.log("URL FOR GET IMAGES IS", url)
       return url;
