@@ -23,6 +23,7 @@
       :paint-size="brushSize"
       :paint-val="brushColor" ref="paper"
       :brightness="brightness" :contrast="contrast"
+      :rainbow="rainbow"
       id="canvas-id" :LUT="LUT"
       ></Paper>
 
@@ -98,6 +99,18 @@
                       <vue-slider ref="slider2" v-model="contrast" v-bind="brightnessOptions">
                       </vue-slider>
                       {{contrast}}
+                    </b-card>
+                </div>
+                <div  class="mt-2 ml-2 mb-2 ">
+                    <b-card>
+                      <p class="card-text">Rainbow</p>
+                      <b-form-radio-group id="btnradios3"
+                      buttons
+                      button-variant="outline-primary"
+                      size="md"
+                      v-model="rainbow"
+                      :options="rainbowOptions"
+                      name="radioBtnOutline" />
                     </b-card>
                 </div>
 
@@ -178,6 +191,7 @@
   .card-body {
     white-space: normal;
     min-width: 200px;
+    min-height: 126px;
   }
 
   .isAuth {
@@ -273,6 +287,11 @@ export default {
       brushColorOptions: [
         { text: 'Erase', value: 0 },
         { text: 'Paint', value: 1 },
+      ],
+      rainbow: false,
+      rainbowOptions: [
+        { text: 'Off', value: false },
+        { text: 'On', value: true },
       ],
       brightness: 50,
       contrast: 50,

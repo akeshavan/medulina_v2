@@ -11,6 +11,8 @@ import chai from 'chai';
 import Hammer from 'hammerjs';
 import paper from '../../node_modules/paper/dist/paper-core.min';
 
+const d3 = require('d3');
+window.d3 = d3;
 paper.install(window);
 
 paper.Raster.prototype.getNonZeroPixels = function getNonZeroPixels() {
@@ -221,6 +223,20 @@ paper.Raster.prototype.brightness_contrast = function brightnessContrast(bright,
       ((((b / 255) - 0.5) * level) + 0.5) * 255 * bright, a,
     ],
   );
+};
+
+paper.Raster.prototype.rainbow = function doRainbow(apply) {
+  return this.process((r, g, b, a) => {
+    if (apply) {
+      const G = (0.299 * r) + (0.587 * g) + (0.114 * b);
+      const c = d3.interpolateRainbow(G / 255)
+        .replace('rgb(', '')
+        .replace(')', '')
+        .split(', ');
+      return [parseFloat(c[0]), parseFloat(c[1]), parseFloat(c[2]), a];
+    }
+    return [r, g, b, a];
+  });
 };
 
 
@@ -835,6 +851,11 @@ export default {
       this.base.brightness_contrast(bright, cont);
     },
 
+    doRainbow() {
+      console.log('doing rainbow');
+      this.base.rainbow(this.rainbow);
+    },
+
     removeEvents() {
       const el = document.getElementById(this.id);
       if (el) {
@@ -906,6 +927,10 @@ export default {
     contrast() {
       this.brightcont();
     },
+    rainbow() {
+      console.log('rainbow changed');
+      this.doRainbow();
+    },
   },
   props: {
     paperSrc: {
@@ -939,6 +964,10 @@ export default {
     contrast: {
       type: Number,
       default: 50,
+    },
+    rainbow: {
+      type: Boolean,
+      default: false,
     },
     id: {
       type: String,
